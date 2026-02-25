@@ -1,0 +1,44 @@
+
+global:
+  tolerations:
+    - key: "vendor"
+      operator: "Equal"
+      value: "cosmotech"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+
+longhornManager:
+  tolerations:
+    - key: "vendor"
+      operator: "Equal"
+      value: "cosmotech"
+      effect: "NoSchedule"
+  kubeletRootDir: "/var/lib/kubelet"
+
+longhornDriver:
+  tolerations:
+    - key: "vendor"
+      operator: "Equal"
+      value: "cosmotech"
+      effect: "NoSchedule"
+
+longhornUI:
+  tolerations:
+    - key: "vendor"
+      operator: "Equal"
+      value: "cosmotech"
+      effect: "NoSchedule"
+
+defaultSettings:
+  defaultReplicaCount: 1
+  storageOverProvisioningPercentage: 100
+  storageMinimalAvailablePercentage: 10
+  upgradeChecker: false
+  replicaAutoBalance: best-effort
+  allowRecurringJobWhileVolumeDetached: true
+
+priorityClass:
+  enabled: true
+  name: longhorn-critical

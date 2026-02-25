@@ -1,0 +1,16 @@
+apiVersion: longhorn.io/v1beta2
+kind: BackupTarget
+metadata:
+  name: default
+  namespace: longhorn-system
+spec:
+  path: "file:///tmp"   # dummy local path, no real backup
+---
+apiVersion: longhorn.io/v1beta2
+kind: SystemBackup
+metadata:
+  name: default
+  namespace: longhorn-system
+spec:
+  backupTarget: default       # reference the BackupTarget
+  volumeBackupPolicy: if-not-present

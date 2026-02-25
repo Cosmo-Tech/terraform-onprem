@@ -1,0 +1,16 @@
+controller:
+  nodeSelector:
+    cosmotech.com/tier: services
+  tolerations:
+    - effect: NoSchedule
+      key: vendor
+      operator: Equal
+      value: cosmotech
+speaker:
+  nodeSelector:
+    cosmotech.com/tier: services
+  tolerations:
+    - effect: NoSchedule
+      key: vendor
+      operator: Equal
+      value: cosmotech

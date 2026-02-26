@@ -12,7 +12,7 @@ resource "kubernetes_manifest" "longhorn_volume" {
       accessMode       = "rwo"
       dataLocality     = "disabled"
       frontend         = "blockdev"
-      fromBackup        = ""
+      fromBackup       = ""
     }
   }
 }
@@ -27,18 +27,18 @@ resource "kubernetes_persistent_volume" "pv" {
     capacity = {
       storage = "${var.size}Gi"
     }
-    access_modes      = ["ReadWriteOnce"]
+    access_modes       = ["ReadWriteOnce"]
     storage_class_name = var.storage_class_name
 
     persistent_volume_source {
       csi {
-        driver       = "driver.longhorn.io"
-        fs_type      = "ext4"
+        driver        = "driver.longhorn.io"
+        fs_type       = "ext4"
         volume_handle = "vol-${var.resource}"
         volume_attributes = {
-          numberOfReplicas   = "1"
+          numberOfReplicas    = "1"
           staleReplicaTimeout = "30"
-          dataLocality       = "disabled"
+          dataLocality        = "disabled"
         }
       }
     }

@@ -6,6 +6,7 @@ terraform {
     }
   }
 }
+
 resource "helm_release" "metallb" {
   name       = "metallb"
   namespace  = "metallb-system"
@@ -23,7 +24,6 @@ resource "helm_release" "metallb" {
   values = [
     file("${path.module}/values.yaml")
   ]
-
 }
 
 data "template_file" "ip_pool" {

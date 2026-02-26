@@ -6,6 +6,7 @@ terraform {
     }
   }
 }
+
 resource "helm_release" "longhorn" {
   name       = "longhorn"
   namespace  = "longhorn-system"
@@ -23,12 +24,10 @@ resource "helm_release" "longhorn" {
   values = [
     file("${path.module}/values.yaml")
   ]
-
 }
 
 data "template_file" "backup" {
   template = file("${path.module}/backup.yaml")
-
 }
 
 resource "kubectl_manifest" "backup" {

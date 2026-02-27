@@ -40,7 +40,7 @@ rm -rf terraform-cluster/terraform.tfstate*
 terraform -chdir=terraform-cluster init
 # terraform -chdir=terraform-cluster init -upgrade -reconfigure -backend-config="key=tfstate-cluster-kob-$cluster_stage-$cluster_name"
 terraform -chdir=terraform-cluster plan -out .terraform.plan
-terraform -chdir=terraform-cluster apply .terraform.plan
+# terraform -chdir=terraform-cluster apply .terraform.plan
 
 
 exit 0

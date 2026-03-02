@@ -14,12 +14,12 @@
     git clone https://github.com/Cosmo-Tech/terraform-onprem.git --branch <tag>
     cd terraform-onprem
     ```
-
 * deploy `docker-state-storage`
     * generate Caddy password hash and store it in .env
         ```
         cosmotech_state_password="$(head -c 40 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9')" && echo '' && echo "password to save: $cosmotech_state_password" && cosmotech_state_hashed="$(echo -n "$(docker run --rm caddy:alpine caddy hash-password --plaintext $cosmotech_state_password)" | base64 -w 0)" && echo '' && echo "COSMOTECHSTATES_PASSWORD_HASH=$cosmotech_state_hashed" > .env && unset cosmotech_state_password && unset $cosmotech_state_hashed && echo 'hashed password stored in .env'
         ```
+    * in `docker-compose.yaml`, replace the existing domain URL `cosmotechstates.onpremise.platform.cosmotech.com` with yours
     * run Docker
         ```
         docker compose -f docker-state-storage/docker-compose.yaml up -d

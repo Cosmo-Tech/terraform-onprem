@@ -3,29 +3,27 @@ services:
     image: caddy:alpine
     restart: unless-stopped
     ports:
-      - "80:80"
       - "443:443"
     volumes:
       - ./caddy/www:/var/www
       - ./caddy/data:/data
     environment:
-      DOMAIN: "cosmotechstates.onpremise.platform.cosmotech.com"
       CADDYFILE_CONTENT: |
-        :80 {
+        cosmotechstates.onpremise.platform.cosmotech.com:443 {
           @get method GET HEAD
 
           route {
-              basicauth {
-                  admin $COSMOTECHSTATES_PASSWORD_HASH
-              }
-              root * /var/www/
-              file_server @get browse
-              webdav
+            basicauth {
+              admin $COSMOTECHSTATES_PASSWORD_HASH
+            }
+            root * /var/www/
+            file_server @get browse
+            webdav
           }
         }
     command: >
       sh -c "
-            echo \"$$CADDYFILE_CONTENT\" > /etc/caddy/Caddyfile &&
-            caddy add-package github.com/mholt/caddy-webdav || true &&
-            caddy run --config /etc/caddy/Caddyfile
-            "
+        echo \"$$CADDYFILE_CONTENT\" > /etc/caddy/Caddyfile &&
+        caddy add-package github.com/mholt/caddy-webdav || true &&
+        caddy run --config /etc/caddy/Caddyfile
+        "

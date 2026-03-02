@@ -13,4 +13,5 @@ install_kubeadm = "false"
 dns_challenge_provider = "azure"
 
 # State host can be DNS record, IP address, and must start with http:// or https://
-state_host = "http://10.2.0.108"
+# state_host = "http://10.2.0.108"
+state_host = "https://cosmotechstates.onpremise.platform.cosmotech.com"

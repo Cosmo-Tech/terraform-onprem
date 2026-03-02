@@ -49,7 +49,7 @@ fi
 
 
 # Ensure a storage service exist to store the states and ask to create it if doesn't exist
-state_storage_status="$(curl -sI -m 3 $state_host -u "$TF_HTTP_USERNAME:$TF_HTTP_PASSWORD" | head -n 1 | cut -d ' ' -f 2 | cut -c 1)"
+state_storage_status="$(curl -sIk -m 3 $state_host -u "$TF_HTTP_USERNAME:$TF_HTTP_PASSWORD" | head -n 1 | cut -d ' ' -f 2 | cut -c 1)"
 if [ -z "$(echo $state_storage_status)" ]; then
     echo "error: $state_host not reachable"
     exit

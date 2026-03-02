@@ -33,14 +33,14 @@ cluster_region="$(get_var_value terraform-cluster/terraform.tfvars cluster_regio
 
 # Clear old data
 rm -rf terraform-cluster/.terraform*
-rm -rf terraform-cluster/terraform.tfstate*
+# rm -rf terraform-cluster/terraform.tfstate*
 
 
 # Deploy
 terraform -chdir=terraform-cluster init
 # terraform -chdir=terraform-cluster init -upgrade -reconfigure -backend-config="key=tfstate-cluster-kob-$cluster_stage-$cluster_name"
 terraform -chdir=terraform-cluster plan -out .terraform.plan
-# terraform -chdir=terraform-cluster apply .terraform.plan
+terraform -chdir=terraform-cluster apply .terraform.plan
 
 
 exit 0

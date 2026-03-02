@@ -1,0 +1,39 @@
+:80 {
+    basic_auth {
+        admin {$PASS_HASH}
+    }
+
+    # Weddav access
+    route {
+        webdav {
+            root /var/www/terraform
+            prefix /cosmotechstates
+        }
+    }
+
+    # Web browser view
+    handle {
+        root * /var/www/terraform
+        file_server browse
+    }
+}
+
+
+
+
+{$DOMAIN} {   
+    basic_auth {
+        admin {$PASS_HASH}
+    }
+
+    handle_path /dav/* {
+        webdav {
+            root /var/www/terraform
+        }
+    }
+
+    handle {
+        root * /var/www/terraform
+        file_server browse
+    }
+}

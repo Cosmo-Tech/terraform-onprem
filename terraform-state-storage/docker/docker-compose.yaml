@@ -1,0 +1,19 @@
+services:
+  caddy:
+    image: caddy:alpine
+    container_name: cosmotech-states-caddy
+    restart: always
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      - DOMAIN=cosmotechstates.onpremise.platform.cosmotech.com
+      - PASS_HASH=
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/www:/var/www
+      - ./caddy/data:/data
+      - ./caddy/config:/config
+    entrypoint: >
+      sh -c "caddy add-package github.com/mholt/caddy-webdav || true;
+            exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"

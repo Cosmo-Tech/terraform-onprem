@@ -5,8 +5,8 @@ services:
     ports:
       - "443:443"
     volumes:
-      - ./caddy/www:/var/www
-      - ./caddy/data:/data
+      - ./.caddy/www:/var/www
+      - ./.caddy/data:/data
     environment:
       CADDYFILE_CONTENT: |
         cosmotechstates.onpremise.platform.cosmotech.com:443 {

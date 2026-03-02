@@ -45,11 +45,14 @@ rm -rf terraform-cluster/.terraform*
 rm -rf terraform-cluster/terraform.tfstate*
 
 
+echo ''
 if [ -z $TF_HTTP_USERNAME ] || [ -z $TF_HTTP_PASSWORD ]; then
     echo "error: empty TF_HTTP_USERNAME or TF_HTTP_PASSWORD (required for backend authentication)"
     echo "  export TF_HTTP_USERNAME="
     echo "  export TF_HTTP_PASSWORD="
     exit
+else
+    echo "found TF_HTTP_USERNAME & TF_HTTP_PASSWORD"
 fi
 
 
@@ -59,9 +62,10 @@ if [ -z "$(echo $state_storage_status)" ]; then
     echo "error: $state_host not reachable"
     exit
 fi
+# Ensure HTTP code is 2xx 
 if [ "$(echo $state_storage_status)" != '2' ]; then
     echo ''
-    echo "error: storage to host states not found: \e[91m$state_host\e[0m"
+    echo "error: could not reach states storage: \e[91m$state_host\e[0m (can be either a network or authentication issue)"
     echo 'you can either:'
     echo '  - configure an existing HTTP server where data are safely stored in terraform-cluster/providers.tf'
     echo '  - install the pre-configured Docker container on a dedicated host (copy/paste following commands to do so)'

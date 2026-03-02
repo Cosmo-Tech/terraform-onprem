@@ -26,9 +26,14 @@ get_var_value() {
 cluster_name="$(get_var_value terraform-cluster/terraform.tfvars cluster_name)"
 cluster_stage="$(get_var_value terraform-cluster/terraform.tfvars cluster_stage)"
 cluster_region="$(get_var_value terraform-cluster/terraform.tfvars cluster_region)"
-
 state_host="$(get_var_value terraform-cluster/terraform.tfvars state_host)"
-state_file_name="tfstate-cluster-kob-$cluster_stage-$cluster_name"
+
+override_naming_convention="$(get_var_value terraform-cluster/terraform.tfvars override_naming_convention)"
+if [ "$(echo $override_naming_convention)" = 'true' ]; then
+    state_file_name="tfstate-cluster-kob-$cluster_name"
+else
+    state_file_name="tfstate-cluster-kob-$cluster_stage-$cluster_name"
+fi
 state_url="$state_host/$state_file_name"
 
 # dns_challenge_provider="$(get_var_value terraform-cluster/terraform.tfvars dns_challenge_provider)"
@@ -41,7 +46,7 @@ rm -rf terraform-cluster/terraform.tfstate*
 
 
 if [ -z $TF_HTTP_USERNAME ] || [ -z $TF_HTTP_PASSWORD ]; then
-    echo "error: empty TF_HTTP_USERNAME or TF_HTTP_PASSWORD"
+    echo "error: empty TF_HTTP_USERNAME or TF_HTTP_PASSWORD (required for backend authentication)"
     echo "  export TF_HTTP_USERNAME="
     echo "  export TF_HTTP_PASSWORD="
     exit

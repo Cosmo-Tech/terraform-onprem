@@ -29,3 +29,13 @@ variable "install_kubeadm" {
   type        = bool
 }
 
+variable "dns_challenge_provider" {
+  description = "Name of the provider where the DNS challenge needs to be setuped. This must match with the module name in 'terraform-dns-challenge-requirements'"
+  type        = bool
+}
+
+
+variable "state_host" {
+  description = "Record or IP of the server hosting the Terraform state"
+  type        = bool  
+}

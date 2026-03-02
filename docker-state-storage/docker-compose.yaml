@@ -10,6 +10,8 @@ services:
     environment:
       CADDYFILE_CONTENT: |
         cosmotechstates.onpremise.platform.cosmotech.com:443 {
+          tls internal
+
           @get method GET HEAD
 
           route {

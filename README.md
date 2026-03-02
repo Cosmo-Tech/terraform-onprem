@@ -24,6 +24,7 @@
         ```
         docker compose -f docker-state-storage/docker-compose.yaml up -d
         ```
+    > After have setuped the DNS challenge, you can remove `tls internal` from `docker-compose.yaml` to improve security
 * deploy `terraform-dns-challenge-requirements`
     * tofill
 * deploy `terraform-cluster`

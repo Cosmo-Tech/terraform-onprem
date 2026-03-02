@@ -12,18 +12,20 @@ terraform {
     }
   }
 
-  
+
   # backend "http" {
   #   address = "http://myrest.api.com/foo"
   #   lock_address = "http://myrest.api.com/foo"
   #   unlock_address = "http://myrest.api.com/foo"
   # }
 
-  
+
+  # backend "http" {}
+
   backend "http" {
-    address = "http://10.2.0.108"
-    lock_address = "http://10.2.0.108"
-    unlock_address = "http://10.2.0.108"
+    update_method = "PUT"
+    lock_method   = "POST"
+    unlock_method = "DELETE"
   }
 }
 

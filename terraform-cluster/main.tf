@@ -13,4 +13,5 @@ module "dns_challenges_requirements_azure" {
 
   main_name              = local.main_name
   dns_challenge_provider = var.dns_challenge_provider
+  domain_zone            = var.domain_zone
 }

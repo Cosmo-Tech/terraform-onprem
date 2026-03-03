@@ -18,6 +18,11 @@ variable "cluster_stage" {
   }
 }
 
+variable "domain_zone" {
+  description = "Domain zone containing the cluster domain"
+  type        = string
+}
+
 variable "override_naming_convention" {
   description = "Override the default naming convention (false => 'kob-<cluster_stage>-<cluster_name>'; true => cluster_name = the exact name that will be used)"
   type        = bool

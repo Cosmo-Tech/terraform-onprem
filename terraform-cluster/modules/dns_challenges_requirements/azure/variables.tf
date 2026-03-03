@@ -5,3 +5,7 @@ variable "main_name" {
 variable "dns_challenge_provider" {
   type = string
 }
+
+variable "domain_zone" {
+  type = string
+}

@@ -48,13 +48,13 @@
 
 ## Developpers
 * Terraform modules
-    * **terraform-dns-challenge-requirements**
-        * Create requirements that permit to run a DNS-01 challenge. Note: HTTP-01 challenges cannot work in a private network.
-        * This is a separated module because it's useful for both `terraform-state-storage` & `terraform-cluster` modules
     * **terraform-cluster**
         * *kubeadm* = Install kubeadm on Linux hosts. This module is optional, it depends on the needs
         * *longhorn* = Storage solution
         * *metallb* = Load-balancer for on-premise Kubernetes clusters
+        * *dns_challenges_requirements* =
+            * create the DNS provider requirements to run cert-manager with DNS-01 challenge (HTTP-01 challenges might not work in local networks)
+            * store relevant informations in a Kubernetes secrets `dns-challenge`
         * *storage* = persistent storage for Kubernetes statefulsets (this module is not used directly here, it's always used in remote modules through its Github URL)
 * Docker
     * **docker-state-storage**

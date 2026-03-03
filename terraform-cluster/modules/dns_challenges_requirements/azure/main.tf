@@ -40,6 +40,20 @@ resource "azuread_application_password" "dns_challenge" {
   display_name   = local.main_name
 }
 
+# Create service principal of the app registration
+resource "azuread_service_principal" "dns_challenge" {
+  count      = var.dns_challenge_provider == "azure" ? 1 : 0
+  client_id  = azuread_application_registration.dns_challenge[0].client_id
+}
+
+# Add permission to the service principal
+resource "azurerm_role_assignment" "dns_contributor" {
+  count                = var.dns_challenge_provider == "azure" ? 1 : 0
+  scope                = data.azurerm_dns_zone.zone.id
+  role_definition_name = "DNS Zone Contributor"
+  principal_id         = azuread_service_principal.dns_challenge[0].object_id
+}
+
 
 # Gather needed informations to store in Kubernetes secret
 data "azuread_client_config" "current" {}
@@ -48,27 +62,13 @@ data "azurerm_dns_zone" "zone" {
   name = var.domain_zone
 }
 
-
-# Create cert-manager namespace to be able storing Kubernetes secret in it (cert-manager can read secret only in its own namespace)
-resource "kubernetes_namespace" "cert_manager" {
-  metadata {
-    name   = "cert-manager"
-  }
-
-  lifecycle {
-    prevent_destroy = false
-  }
-}
-
-
 # Create a Kubernetes secret to store the app registration informations
 resource "kubernetes_secret" "dns_challenge" {
   count = var.dns_challenge_provider == "azure" ? 1 : 0
 
   metadata {
-    name      = "dns-challenge"
-    namespace = kubernetes_namespace.cert_manager.metadata[0].name
-    # namespace = "default"
+    name      = "dns-challenge-terraform-onprem"
+    namespace = "default"
   }
 
   data = {

@@ -41,9 +41,9 @@ resource "kubernetes_secret" "dns_challenge" {
   }
 
   data = {
-    app_id     = azuread_application_registration.dns_challenge[0].id
-    app_secret = azuread_application_password.dns_challenge[0].value
+    client-id     = azuread_application_registration.dns_challenge[0].id
+    client-secret = azuread_application_password.dns_challenge[0].value
   }
 
-  type = "kubernetes.io/basic-auth"
+  type = "Opaque"
 }

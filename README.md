@@ -7,6 +7,8 @@
 * working Linux hosts
 * [terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
     > If using Windows, Terraform must be accessible from PATH
+* situational
+    * [docker](https://docs.docker.com/engine/install/)
 
 ## How to
 * clone current repo

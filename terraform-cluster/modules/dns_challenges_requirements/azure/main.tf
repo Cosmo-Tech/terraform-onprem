@@ -49,13 +49,26 @@ data "azurerm_dns_zone" "zone" {
 }
 
 
+# Create cert-manager namespace to be able storing Kubernetes secret in it (cert-manager can read secret only in its own namespace)
+resource "kubernetes_namespace" "cert_manager" {
+  metadata {
+    name   = "cert-manager"
+  }
+
+  lifecycle {
+    prevent_destroy = false
+  }
+}
+
+
 # Create a Kubernetes secret to store the app registration informations
 resource "kubernetes_secret" "dns_challenge" {
   count = var.dns_challenge_provider == "azure" ? 1 : 0
 
   metadata {
     name      = "dns-challenge"
-    namespace = "default"
+    namespace = kubernetes_namespace.cert_manager.metadata[0].name
+    # namespace = "default"
   }
 
   data = {

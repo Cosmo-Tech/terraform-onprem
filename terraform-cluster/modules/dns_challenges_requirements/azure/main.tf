@@ -36,12 +36,12 @@ resource "kubernetes_secret" "dns_challenge" {
   count = var.dns_challenge_provider == "azure" ? 1 : 0
 
   metadata {
-    name = "dns-challenge"
+    name      = "dns-challenge"
     namespace = "default"
   }
 
   data = {
-    app_id = azuread_application_registration.dns_challenge[0].id
+    app_id     = azuread_application_registration.dns_challenge[0].id
     app_secret = azuread_application_password.dns_challenge[0].value
   }
 

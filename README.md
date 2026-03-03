@@ -8,7 +8,7 @@
 * [terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
     > If using Windows, Terraform must be accessible from PATH
 * situational
-    * [docker](https://docs.docker.com/engine/install/)
+    * [docker](https://docs.docker.com/engine/install/) for the Caddy state storage
 
 ## How to
 * clone current repo
@@ -17,7 +17,8 @@
     cd terraform-onprem
     ```
 * deploy `docker-state-storage`
-    * generate Caddy password hash and store it in .env
+    * generate a password for Caddy and store its hash in .env
+        > :warning: Only the hash of the generated password will be stored, the password itself will not be saved. You have to store it in a safe place.
         ```
         cosmotech_state_password="$(head -c 40 /dev/urandom | base64 | tr -dc 'a-zA-Z0-9')" && echo '' && echo "password to save: $cosmotech_state_password" && cosmotech_state_hashed="$(echo -n "$(docker run --rm caddy:alpine caddy hash-password --plaintext $cosmotech_state_password)" | base64 -w 0)" && echo '' && echo "COSMOTECHSTATES_PASSWORD_HASH=$cosmotech_state_hashed" > .env && unset cosmotech_state_password && unset $cosmotech_state_hashed && echo 'hashed password stored in .env'
         ```
@@ -27,11 +28,8 @@
         docker compose -f docker-state-storage/docker-compose.yaml up -d
         ```
     > After have setuped the DNS challenge, you can remove `tls internal` from `docker-compose.yaml` to improve security
-* deploy `terraform-dns-challenge-requirements`
-    * tofill
 * deploy `terraform-cluster`
     * fill `terraform-cluster/terraform.tfvars` variables according to your needs
-        > :pencil2: you can change default Kubernetes nodes configuration from `terraform-cluster/terraform.auto.tfvars`
     * run pre-configured script
         > :pencil2: comment/uncomment the `terraform apply` line at the end to get a plan without deploy anything
         * Linux

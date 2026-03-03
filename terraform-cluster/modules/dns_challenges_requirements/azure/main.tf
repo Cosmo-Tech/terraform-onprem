@@ -54,7 +54,6 @@ resource "azurerm_role_assignment" "dns_contributor" {
   principal_id         = azuread_service_principal.dns_challenge[0].object_id
 }
 
-
 # Gather needed informations to store in Kubernetes secret
 data "azuread_client_config" "current" {}
 data "azurerm_subscription" "current" {}
@@ -81,4 +80,22 @@ resource "kubernetes_secret" "dns_challenge" {
   }
 
   type = "Opaque"
+}
+
+
+# Create DNS records cluster & Superset
+resource "azurerm_dns_a_record" "record_cluster" {
+  name                = var.cluster_domain
+  zone_name           = var.domain_zone
+  resource_group_name = data.azurerm_dns_zone.zone.resource_group_name
+  ttl                 = 300
+  records             = ["${var.cluster_ip}"]
+}
+
+resource "azurerm_dns_a_record" "record_superset" {
+  name                = "superset-${var.cluster_domain}"
+  zone_name           = var.domain_zone
+  resource_group_name = data.azurerm_dns_zone.zone.resource_group_name
+  ttl                 = 300
+  records             = ["${var.cluster_ip}"]
 }

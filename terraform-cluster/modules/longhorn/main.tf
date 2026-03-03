@@ -27,7 +27,7 @@ resource "helm_release" "longhorn" {
 }
 
 data "template_file" "backup" {
-  template = file("${path.module}/backup.yaml")
+  template = file("${path.module}/kube_objects/backup.yaml")
 }
 
 resource "kubectl_manifest" "backup" {

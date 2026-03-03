@@ -9,3 +9,11 @@ variable "dns_challenge_provider" {
 variable "domain_zone" {
   type = string
 }
+
+variable "cluster_domain" {
+  type = string
+}
+
+variable "cluster_ip" {
+  type = string
+}

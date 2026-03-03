@@ -40,6 +40,12 @@
             ```
             ./_run-terraform.ps1
             ```
+* situational:
+    * Add DNS records to your DNS zone (2 records: 1x cluster & 1x specific Superset)
+        > If DNS records needs to be registered in a local DNS server, manual creation is required because Terraform cannot handle it. \
+        > For example, in Cosmo Tech case, the 2 requireds DNS records will be \
+        > `<cluster_name>.onpremise.platform.cosmotech.com` \
+        > `superset-<cluster_nale>.onpremise.platform.cosmotech.com`
 
 ## Known errors
 * No known error for now !

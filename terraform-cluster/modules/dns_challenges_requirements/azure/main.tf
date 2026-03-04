@@ -83,19 +83,19 @@ resource "kubernetes_secret" "dns_challenge" {
 }
 
 
-# Create DNS records cluster & Superset
-resource "azurerm_dns_a_record" "record_cluster" {
-  name                = var.cluster_domain
-  zone_name           = var.domain_zone
-  resource_group_name = data.azurerm_dns_zone.zone.resource_group_name
-  ttl                 = 300
-  records             = ["${var.cluster_ip}"]
-}
+# # Create DNS records cluster & Superset
+# resource "azurerm_dns_a_record" "record_cluster" {
+#   name                = var.cluster_domain
+#   zone_name           = var.domain_zone
+#   resource_group_name = data.azurerm_dns_zone.zone.resource_group_name
+#   ttl                 = 300
+#   records             = ["${var.cluster_ip}"]
+# }
 
-resource "azurerm_dns_a_record" "record_superset" {
-  name                = "superset-${var.cluster_domain}"
-  zone_name           = var.domain_zone
-  resource_group_name = data.azurerm_dns_zone.zone.resource_group_name
-  ttl                 = 300
-  records             = ["${var.cluster_ip}"]
-}
+# resource "azurerm_dns_a_record" "record_superset" {
+#   name                = "superset-${var.cluster_domain}"
+#   zone_name           = var.domain_zone
+#   resource_group_name = data.azurerm_dns_zone.zone.resource_group_name
+#   ttl                 = 300
+#   records             = ["${var.cluster_ip}"]
+# }

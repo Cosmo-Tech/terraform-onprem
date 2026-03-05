@@ -49,7 +49,19 @@
         > `cosmotechstates.onpremise.platform.cosmotech.com`
 
 ## Known errors
-* No known error for now !
+* Ghost volumes on Longhorn
+    > * Connect directly to control-plane host (SSH or direct access), with sudo access
+    > * Be sure to have `etcd-client` installed
+    > * List volumes to get exacts names
+    >     ```
+    >     sudo ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key get /registry/longhorn.io/volumes/ --prefix --keys-only
+    >     ```
+    > * Delete the volume (copy/paste the exact name of the volume from the previous command) \
+         > :warning: Data hosted on the volume will be destroyed with the volume. Be sure to have a copy before operates.
+    >     ```
+    >     sudo ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key del /registry/longhorn.io/volumes/longhorn-system/VOLUME_NAME
+    >     ```
+
 
 ## Developpers
 * Terraform modules

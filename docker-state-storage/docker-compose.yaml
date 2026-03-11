@@ -1,0 +1,31 @@
+services:
+  caddy:
+    image: caddy:alpine
+    restart: unless-stopped
+    ports:
+      - "443:443"
+    volumes:
+      - ./.caddy/www:/var/www
+      - ./.caddy/data:/data
+    environment:
+      CADDYFILE_CONTENT: |
+        cosmotechstates.onpremise.platform.cosmotech.com:443 {
+          tls internal
+
+          @get method GET HEAD
+
+          route {
+            basicauth {
+              admin $COSMOTECHSTATES_PASSWORD_HASH
+            }
+            root * /var/www/
+            file_server @get browse
+            webdav
+          }
+        }
+    command: >
+      sh -c "
+        echo \"$$CADDYFILE_CONTENT\" > /etc/caddy/Caddyfile &&
+        caddy add-package github.com/mholt/caddy-webdav || true &&
+        caddy run --config /etc/caddy/Caddyfile
+        "

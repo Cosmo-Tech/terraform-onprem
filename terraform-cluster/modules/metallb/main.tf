@@ -6,6 +6,18 @@ terraform {
     }
   }
 }
+
+# locals {
+#   # Get the IP from the existing nodes
+#   cluster_ip = flatten([
+#     for node in data.kubernetes_nodes.all_nodes.nodes : [
+#       for addr in node.status[0].addresses : addr.address if addr.type == "InternalIP"
+#     ]
+#   ])[0]
+# }
+
+# data "kubernetes_nodes" "all_nodes" {}
+
 resource "helm_release" "metallb" {
   name       = "metallb"
   namespace  = "metallb-system"
@@ -23,12 +35,13 @@ resource "helm_release" "metallb" {
   values = [
     file("${path.module}/values.yaml")
   ]
-
 }
 
 data "template_file" "ip_pool" {
-  template = file("${path.module}/ip-pool.yaml")
-
+  template = file("${path.module}/kube_objects/ip-pool.yaml")
+  vars = {
+    cluster_ip = var.cluster_ip
+  }
 }
 
 resource "kubectl_manifest" "ip_pool" {

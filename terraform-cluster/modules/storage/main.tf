@@ -1,10 +1,22 @@
+locals {
+
+  # Volumes are renamed with md5 to avoid Longhorn char limits (~40 chars).
+  # Longhorn is automatically renaming volumes with automatics ID when this limit is reached.
+  # MD5 size is always 32 char.
+  # An annotation "longhorn.io/resource-name" is added to allow better lisibility.
+  volume_name = "vol-${md5(var.resource)}"
+}
+
 resource "kubernetes_manifest" "longhorn_volume" {
   manifest = {
     apiVersion = "longhorn.io/v1beta2"
     kind       = "Volume"
     metadata = {
-      name      = "vol-${var.resource}"
+      name      = "${local.volume_name}"
       namespace = "longhorn-system"
+      annotations = {
+        "longhorn.io/resource-name" = "${var.resource}"
+      }
     }
     spec = {
       size             = tostring(var.size * 1024 * 1024 * 1024)
@@ -12,7 +24,7 @@ resource "kubernetes_manifest" "longhorn_volume" {
       accessMode       = "rwo"
       dataLocality     = "disabled"
       frontend         = "blockdev"
-      fromBackup        = ""
+      fromBackup       = ""
     }
   }
 }
@@ -27,18 +39,18 @@ resource "kubernetes_persistent_volume" "pv" {
     capacity = {
       storage = "${var.size}Gi"
     }
-    access_modes      = ["ReadWriteOnce"]
+    access_modes       = ["ReadWriteOnce"]
     storage_class_name = var.storage_class_name
 
     persistent_volume_source {
       csi {
-        driver       = "driver.longhorn.io"
-        fs_type      = "ext4"
-        volume_handle = "vol-${var.resource}"
+        driver        = "driver.longhorn.io"
+        fs_type       = "ext4"
+        volume_handle = "${local.volume_name}"
         volume_attributes = {
-          numberOfReplicas   = "1"
+          numberOfReplicas    = "1"
           staleReplicaTimeout = "30"
-          dataLocality       = "disabled"
+          dataLocality        = "disabled"
         }
       }
     }

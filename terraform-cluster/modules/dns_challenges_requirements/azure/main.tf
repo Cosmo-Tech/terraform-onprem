@@ -42,8 +42,8 @@ resource "azuread_application_password" "dns_challenge" {
 
 # Create service principal of the app registration
 resource "azuread_service_principal" "dns_challenge" {
-  count      = var.dns_challenge_provider == "azure" ? 1 : 0
-  client_id  = azuread_application_registration.dns_challenge[0].client_id
+  count     = var.dns_challenge_provider == "azure" ? 1 : 0
+  client_id = azuread_application_registration.dns_challenge[0].client_id
 }
 
 # Add permission to the service principal

@@ -31,6 +31,6 @@ module "dns_challenges_requirements_azure" {
   main_name              = local.main_name
   dns_challenge_provider = var.dns_challenge_provider
   domain_zone            = var.domain_zone
-  cluster_ip = local.cluster_ip
-  cluster_domain = local.cluster_domain
+  cluster_ip             = local.cluster_ip
+  cluster_domain         = local.cluster_domain
 }

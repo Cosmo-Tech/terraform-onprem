@@ -37,10 +37,19 @@ resource "helm_release" "metallb" {
   ]
 }
 
+locals {
+  # Split the cluster IP into octets and compute the last IP of the range
+  ip_parts       = split(".", var.cluster_ip)
+  last_octet     = tonumber(local.ip_parts[3])
+  range_end      = local.last_octet + var.ip_range_size - 1
+  cluster_ip_end = "${local.ip_parts[0]}.${local.ip_parts[1]}.${local.ip_parts[2]}.${local.range_end}"
+}
+
 data "template_file" "ip_pool" {
   template = file("${path.module}/kube_objects/ip-pool.yaml")
   vars = {
-    cluster_ip = var.cluster_ip
+    cluster_ip     = var.cluster_ip
+    cluster_ip_end = local.cluster_ip_end
   }
 }
 

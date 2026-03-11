@@ -38,11 +38,25 @@ resource "helm_release" "metallb" {
 }
 
 locals {
-  # Split the cluster IP into octets and compute the last IP of the range
-  ip_parts       = split(".", var.cluster_ip)
-  last_octet     = tonumber(local.ip_parts[3])
-  range_end      = local.last_octet + var.ip_range_size - 1
-  cluster_ip_end = "${local.ip_parts[0]}.${local.ip_parts[1]}.${local.ip_parts[2]}.${local.range_end}"
+  # Convert IPv4 to a 32-bit integer, add the range, convert back.
+  # This safely handles overflow across octets (e.g. x.x.x.252 + 6 → x.x.y.2)
+  ip_parts  = split(".", var.cluster_ip)
+  ip_octet0 = tonumber(local.ip_parts[0])
+  ip_octet1 = tonumber(local.ip_parts[1])
+  ip_octet2 = tonumber(local.ip_parts[2])
+  ip_octet3 = tonumber(local.ip_parts[3])
+
+  ip_start_int = ((local.ip_octet0 * 256 + local.ip_octet1) * 256 + local.ip_octet2) * 256 + local.ip_octet3
+  ip_end_int   = local.ip_start_int + var.ip_range_size - 1
+
+  ip_end_octet3 = local.ip_end_int % 256
+  ip_end_tmp2   = floor(local.ip_end_int / 256)
+  ip_end_octet2 = local.ip_end_tmp2 % 256
+  ip_end_tmp1   = floor(local.ip_end_tmp2 / 256)
+  ip_end_octet1 = local.ip_end_tmp1 % 256
+  ip_end_octet0 = floor(local.ip_end_tmp1 / 256)
+
+  cluster_ip_end = "${local.ip_end_octet0}.${local.ip_end_octet1}.${local.ip_end_octet2}.${local.ip_end_octet3}"
 }
 
 data "template_file" "ip_pool" {

@@ -80,7 +80,7 @@ fi
 # Deploy
 terraform -chdir=terraform-cluster init -upgrade -reconfigure -backend-config="address=$state_url" -backend-config="lock_address=$state_url/lock" -backend-config="unlock_address=$state_url/lock"
 terraform -chdir=terraform-cluster plan -lock=false -out .terraform.plan
-# terraform -chdir=terraform-cluster apply -lock=false .terraform.plan
+terraform -chdir=terraform-cluster apply -lock=false .terraform.plan
 
 
 exit 0

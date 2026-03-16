@@ -1,15 +1,7 @@
 #!/bin/sh
 
 # This script aims to install kubeadm on Debian based host
-
-COSMO_KUBERNETES_VERSION='1.35'
-
-
-# Stop script if not sudo
-if [ "$(id -u)" != "0" ]; then
-  echo "sudo is required"
-  exit
-fi
+# Differents env var are used in this script (all starting with "COSMO_KUBERNETES")
 
 
 # Display a log
@@ -20,6 +12,27 @@ log_message() {
 
   echo "$loglevel: $message"
 }
+
+
+COSMO_KUBERNETES_VERSION='1.35'
+echo "COSMO_KUBERNETES_VERSION=$COSMO_KUBERNETES_VERSION"
+
+
+# true = install controlplane
+# false = install a node
+if [ -z $COSMO_KUBERNETES_HOST_CONTROLPLANE ]; then
+  log_message 'error' 'missing COSMO_KUBERNETES_HOST_CONTROLPLANE=true/false'
+  exit
+else
+  echo "COSMO_KUBERNETES_HOST_CONTROLPLANE=$COSMO_KUBERNETES_HOST_CONTROLPLANE"
+fi
+
+
+# Stop script if not sudo
+if [ "$(id -u)" != "0" ]; then
+  echo "sudo is required"
+  exit
+fi
 
 
 # Get the name of the current Linux distribution
@@ -54,12 +67,12 @@ deactivate_swap() {
 # Install containerd
 # Usage: install_containerd 
 install_containerd() {
-  sudo apt remove $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
+  sudo apt remove -y $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
 
   if [ "$DISTRIBUTION" = 'debian' ]; then
 # Add Docker's official GPG key:
 sudo apt update
-sudo apt install ca-certificates curl
+sudo apt install -y ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -76,7 +89,7 @@ EOF
   elif [ "$DISTRIBUTION"= 'ubuntu' ]; then
 # Add Docker's official GPG key:
 sudo apt update
-sudo apt install ca-certificates curl
+sudo apt install -y ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -92,7 +105,7 @@ EOF
   fi
 
   sudo apt update
-  sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
   sudo mkdir -p /etc/containerd
   sudo containerd config default | sudo tee /etc/containerd/config.toml
@@ -131,12 +144,27 @@ sudo sysctl --system
 }
 
 
+# Install Kubernetes controlplane, only on target host
+# Usage: install_controlplane
+install_controlplane() {
+
+  if [ "$COSMO_KUBERNETES_HOST_CONTROLPLANE" = 'true' ]; then
+    sudo kubeadm init --pod-network-cidr=192.168.0.0/16
+
+    mkdir -p $admin_user_home/.kube
+    sudo cp /etc/kubernetes/admin.conf $admin_user_home/.kube/config
+    sudo chown $admin_user:$admin_user $admin_user_home/.kube/config
+  fi
+
+  kubectl get nodes
+}
+
 
 # Stop script if component already installed
 components_list="containerd kubeadm kubelet kubectl"
 for component in $components_list; do
-	if [ "$(command -v $component)" ] || [ -z "$(sudo systemctl status $component | grep -w 'Active:')" ] || [ -z "$(dpkg -l | grep $component)" ]; then
-    log_message 'component' "$component already installed"
+	if [ "$(command -v $component)" ] || [ "$(sudo systemctl status $component | grep -w 'Active:')" ] || [ "$(dpkg -l | grep -w $component)" ]; then
+    log_message 'info' "component already installed: $component"
     at_least_one_component_exists='true'
 	fi
 done
@@ -148,6 +176,10 @@ fi
 deactivate_swap
 install_containerd
 install_kube
+
+
+install_controlplane
+join_controlplane
 
 
 exit

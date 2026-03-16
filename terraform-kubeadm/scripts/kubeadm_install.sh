@@ -1,7 +1,9 @@
 #!/bin/sh
 
 # This script aims to install kubeadm on Debian based host
-# Differents env var are used in this script (all starting with "COSMO_KUBERNETES")
+# Notes:
+#  - this script install only packages on the hosts, controlplane & nodes are created in others scripts. 
+#  - differents env var are used in this script (all starting with "COSMO_KUBERNETES")
 
 
 # Display a log
@@ -17,15 +19,6 @@ log_message() {
 COSMO_KUBERNETES_VERSION='1.35'
 echo "COSMO_KUBERNETES_VERSION=$COSMO_KUBERNETES_VERSION"
 
-
-# true = install controlplane
-# false = install a node
-if [ -z $COSMO_KUBERNETES_HOST_CONTROLPLANE ]; then
-  log_message 'error' 'missing COSMO_KUBERNETES_HOST_CONTROLPLANE=true/false'
-  exit
-else
-  echo "COSMO_KUBERNETES_HOST_CONTROLPLANE=$COSMO_KUBERNETES_HOST_CONTROLPLANE"
-fi
 
 
 # Stop script if not sudo
@@ -144,21 +137,6 @@ sudo sysctl --system
 }
 
 
-# Install Kubernetes controlplane, only on target host
-# Usage: install_controlplane
-install_controlplane() {
-
-  if [ "$COSMO_KUBERNETES_HOST_CONTROLPLANE" = 'true' ]; then
-    sudo kubeadm init --pod-network-cidr=192.168.0.0/16
-
-    mkdir -p $admin_user_home/.kube
-    sudo cp /etc/kubernetes/admin.conf $admin_user_home/.kube/config
-    sudo chown $admin_user:$admin_user $admin_user_home/.kube/config
-  fi
-
-  kubectl get nodes
-}
-
 
 # Stop script if component already installed
 components_list="containerd kubeadm kubelet kubectl"
@@ -177,9 +155,6 @@ deactivate_swap
 install_containerd
 install_kube
 
-
-install_controlplane
-join_controlplane
 
 
 exit

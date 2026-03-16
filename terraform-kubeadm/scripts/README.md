@@ -6,3 +6,4 @@ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-ku
 - kubectl
 - helm
 - calico + firewall
+- rename cluster

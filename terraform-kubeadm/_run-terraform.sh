@@ -2,6 +2,7 @@
 
 
 rm -f terraform.tfstate*
+rm -f .terraform*
 
 terraform init
 terraform plan -out .terraform.plan

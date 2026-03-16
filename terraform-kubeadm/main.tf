@@ -40,8 +40,8 @@
 
 
 
-# Copy scripts and execute them on remote hosts
-resource "terraform_data" "hosts" {
+# Install Kubeadm
+resource "terraform_data" "kubeadm_install" {
   for_each = var.hosts
 
   connection {
@@ -60,40 +60,83 @@ resource "terraform_data" "hosts" {
     inline = [
       "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
       "cd /tmp",
-      "pwd",
+      "working in $(pwd)",
       "sudo chmod +x kubeadm_*",
     ]
   }
 
-  # Install controlplane
+  # Install kubeadm itself on all hosts (the binaries & required packages)
+  provisioner "remote-exec" {
+    inline = [
+      "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
+      "cd /tmp",
+      "working in $(pwd)",
+      "script='kubeadm_install.sh'",
+      "sudo chmod +x $script",
+      "sudo sh -c \"./$script\"",
+    ]
+  }
+}
+
+
+# Configure Kubeadm controlplane & nodes
+resource "terraform_data" "kubeadm_config" {
+  for_each = var.hosts
+
+  connection {
+    host = each.value.ip
+    port = each.value.port
+    user = each.value.user
+  }
+
+  # Install controlplane on given the host with type "controlplane" from terraform.tfvars
   provisioner "remote-exec" {
     inline = each.value.type == "controlplane" ? [
       "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
       "cd /tmp",
-      "pwd",
-      "script='create_controlplane.sh'",
+      "working in $(pwd)",
+      "script='kubeadm_create_controlplane.sh'",
       "sudo chmod +x $script",
       "sudo sh -c \"./$script\"",
-    ] : 0
+    ] : []
   }
 
-  # Install nodes
+  # Install nodes on given the host without type "controlplane" from terraform.tfvars
   provisioner "remote-exec" {
     inline = each.value.type != "controlplane" ? [
       "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
       "cd /tmp",
-      "pwd",
-      "script='create_node.sh'",
+      "working in $(pwd)",
+      "script='kubeadm_create_node.sh'",
       "sudo chmod +x $script",
       "sudo sh -c \"./$script\"",
-    ] : 0
+    ] : []
+  }
+
+  depends_on = [ terraform_data.kubeadm_install ]
+}
+
+
+# Clean hosts
+resource "terraform_data" "cleaning" {
+  for_each = var.hosts
+
+  connection {
+    host = each.value.ip
+    port = each.value.port
+    user = each.value.user
   }
 
   # Clean host
   provisioner "remote-exec" {
     inline = [
-      "rm -f /tmp/terraform_*.sh",
+      "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
+      "cd /tmp",
+      "working in $(pwd)",
+      "sudo rm -f /tmp/terraform_*.sh",
     ]
   }
+
+  depends_on = [ terraform_data.kubeadm_config ]
 }
 

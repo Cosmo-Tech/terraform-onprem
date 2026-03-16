@@ -1,4 +1,19 @@
+variable "cluster_name" {
+  description = "Kubernetes cluster name"
+  type        = string
+}
+
+variable "cluster_stage" {
+  description = "Kubernetes cluster stage"
+  type        = string
+
+  validation {
+    condition     = contains(["test", "dev", "qa", "demo", "ppd", "prod"], var.cluster_stage)
+    error_message = "Valid values for 'cluster_stage' are: \n- test\n- dev\n- qa\n- demo\n- ppd\n- prod"
+  }
+}
+
 variable "hosts" {
   description = "List of host where to perform the installation"
-  type        = map(string)
+  type        = map(any)
 }

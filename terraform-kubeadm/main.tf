@@ -114,10 +114,9 @@ resource "terraform_data" "kubeadm_nodes" {
 
   provisioner "remote-exec" {
     inline = [
-      "set -x",
       "${local.command_auth_sudo}",
       "if [ -f /etc/kubernetes/kubelet.conf ]; then",
-      "echo 'info: node already joined, skipping...'",
+      "echo 'info: this node is already in cluster ${local.main_name}, skipping'",
       "exit 0",
       "fi",
       "sudo kubeadm join ${local.kubeadm_controlplane_ip}:6443 --token ${local.kubeadm_join_token} --discovery-token-unsafe-skip-ca-verification"

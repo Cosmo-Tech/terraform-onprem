@@ -6,19 +6,8 @@
 #  - differents env var are used in this script (all starting with "COSMO_KUBERNETES")
 
 
-# Display a log
-# Usage: log_message <loglevel> <message>
-log_message() {
-  local loglevel=$1
-  local message=$2
-
-  echo "$loglevel: $message"
-}
-
-
 COSMO_KUBERNETES_VERSION='1.35'
 echo "COSMO_KUBERNETES_VERSION=$COSMO_KUBERNETES_VERSION"
-
 
 
 # Stop script if not sudo
@@ -40,7 +29,30 @@ DISTRIBUTION="$(get_os_distribution)"
 if [ "$DISTRIBUTION" = 'debian' ] || [ "$DISTRIBUTION" = 'ubuntu' ]; then
   continue
 else
-  log_message 'error' 'unsupported Linux distribution '$DISTRIBUTION''
+  echo "error: unsupported Linux distribution '$DISTRIBUTION'"
+  exit
+fi
+
+
+# Stop script if missing dependency
+required_commands="apt swapoff curl systemctl"
+for command in $required_commands; do
+    if [ -z "$(command -v $command)" ]; then
+        echo "error: required command not found: $command"
+        exit 1
+    fi
+done
+
+
+# Stop script if component already installed
+components_list="containerd kubeadm kubelet kubectl"
+for component in $components_list; do
+	if [ "$(command -v $component)" ] || [ "$(sudo systemctl status $component | grep -w 'Active:')" ] || [ "$(dpkg -l | grep -w $component)" ]; then
+    echo "info: component already installed: $component"
+    at_least_one_component_exists='true'
+	fi
+done
+if [ "$at_least_one_component_exists" = 'true' ]; then
   exit
 fi
 
@@ -56,45 +68,44 @@ deactivate_swap() {
 }
 
 
-
 # Install containerd
 # Usage: install_containerd 
 install_containerd() {
   sudo apt remove -y $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
 
   if [ "$DISTRIBUTION" = 'debian' ]; then
-# Add Docker's official GPG key:
-sudo apt update
-sudo apt install -y ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
+    # Add Docker's official GPG key:
+    sudo apt update
+    sudo apt install -y ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Add the repository to Apt sources:
-sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/debian
-Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
+    # Add the repository to Apt sources:
+    echo " \
+      Types: deb
+      URIs: https://download.docker.com/linux/debian
+      Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+      Components: stable
+      Signed-By: /etc/apt/keyrings/docker.asc
+    " > '/etc/apt/sources.list.d/docker.sources'
 
   elif [ "$DISTRIBUTION"= 'ubuntu' ]; then
-# Add Docker's official GPG key:
-sudo apt update
-sudo apt install -y ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
+    # Add Docker's official GPG key:
+    sudo apt update
+    sudo apt install -y ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-# Add the repository to Apt sources:
-sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/ubuntu
-Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
+    # Add the repository to Apt sources:
+    echo " \
+      Types: deb
+      URIs: https://download.docker.com/linux/ubuntu
+      Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+      Components: stable
+      Signed-By: /etc/apt/keyrings/docker.asc
+    " > '/etc/apt/sources.list.d/docker.sources'
   fi
 
   sudo apt update
@@ -110,19 +121,19 @@ EOF
 # Install kubernetes components
 # Usage: install_kube 
 install_kube() {
+  echo " \
+    overlay
+    br_netfilter
+    TEST
+  " > '/etc/modules-load.d/k8s.conf'
+  sudo modprobe overlay
+  sudo modprobe br_netfilter
 
-cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
-overlay
-br_netfilter
-EOF
-sudo modprobe overlay
-sudo modprobe br_netfilter
-
-cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1
-EOF
-sudo sysctl --system
+  echo " \
+    net.bridge.bridge-nf-call-ip6tables = 1
+    net.bridge.bridge-nf-call-iptables = 1
+  " > '/etc/sysctl.d/k8s.conf'
+  sudo sysctl --system
 
   sudo apt update
   sudo apt install -y apt-transport-https ca-certificates curl gpg
@@ -135,20 +146,6 @@ sudo sysctl --system
 
   sudo systemctl enable --now kubelet
 }
-
-
-
-# Stop script if component already installed
-components_list="containerd kubeadm kubelet kubectl"
-for component in $components_list; do
-	if [ "$(command -v $component)" ] || [ "$(sudo systemctl status $component | grep -w 'Active:')" ] || [ "$(dpkg -l | grep -w $component)" ]; then
-    log_message 'info' "component already installed: $component"
-    at_least_one_component_exists='true'
-	fi
-done
-if [ $at_least_one_component_exists = 'true' ]; then
-  exit
-fi
 
 
 deactivate_swap

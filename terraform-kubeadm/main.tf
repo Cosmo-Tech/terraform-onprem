@@ -48,6 +48,7 @@ resource "terraform_data" "kubeadm_install" {
     host = each.value.ip
     port = each.value.port
     user = each.value.user
+    agent  = true
   }
 
   provisioner "file" {
@@ -60,7 +61,6 @@ resource "terraform_data" "kubeadm_install" {
     inline = [
       "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
       "cd /tmp",
-      "working in $(pwd)",
       "sudo chmod +x kubeadm_*",
     ]
   }
@@ -70,13 +70,35 @@ resource "terraform_data" "kubeadm_install" {
     inline = [
       "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
       "cd /tmp",
-      "working in $(pwd)",
       "script='kubeadm_install.sh'",
       "sudo chmod +x $script",
       "sudo sh -c \"./$script\"",
     ]
   }
 }
+
+
+# # Reboot host
+# resource "terraform_data" "host_reboot" {
+#   for_each = var.hosts
+
+#   connection {
+#     host = each.value.ip
+#     port = each.value.port
+#     user = each.value.user
+#     agent  = true
+#   }
+
+#   # Reboot host
+#   provisioner "remote-exec" {
+#     inline = [
+#       "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
+#       "sudo init 6",
+#     ]
+#   }
+
+#   depends_on = [ terraform_data.kubeadm_install ]
+# }
 
 
 # Configure Kubeadm controlplane & nodes
@@ -87,6 +109,7 @@ resource "terraform_data" "kubeadm_config" {
     host = each.value.ip
     port = each.value.port
     user = each.value.user
+    agent  = true
   }
 
   # Install controlplane on given the host with type "controlplane" from terraform.tfvars
@@ -94,11 +117,10 @@ resource "terraform_data" "kubeadm_config" {
     inline = each.value.type == "controlplane" ? [
       "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
       "cd /tmp",
-      "working in $(pwd)",
       "script='kubeadm_create_controlplane.sh'",
       "sudo chmod +x $script",
       "sudo sh -c \"./$script\"",
-    ] : []
+    ] : ["echo ''"]
   }
 
   # Install nodes on given the host without type "controlplane" from terraform.tfvars
@@ -106,11 +128,10 @@ resource "terraform_data" "kubeadm_config" {
     inline = each.value.type != "controlplane" ? [
       "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
       "cd /tmp",
-      "working in $(pwd)",
       "script='kubeadm_create_node.sh'",
       "sudo chmod +x $script",
       "sudo sh -c \"./$script\"",
-    ] : []
+    ] : ["echo ''"]
   }
 
   depends_on = [ terraform_data.kubeadm_install ]
@@ -125,6 +146,7 @@ resource "terraform_data" "cleaning" {
     host = each.value.ip
     port = each.value.port
     user = each.value.user
+    agent  = true
   }
 
   # Clean host
@@ -132,7 +154,6 @@ resource "terraform_data" "cleaning" {
     inline = [
       "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
       "cd /tmp",
-      "working in $(pwd)",
       "sudo rm -f /tmp/terraform_*.sh",
     ]
   }
@@ -140,3 +161,26 @@ resource "terraform_data" "cleaning" {
   depends_on = [ terraform_data.kubeadm_config ]
 }
 
+
+# Reboot host
+resource "terraform_data" "host_reboot_final" {
+  for_each = var.hosts
+
+  connection {
+    host = each.value.ip
+    port = each.value.port
+    user = each.value.user
+    agent  = true
+  }
+
+  # Reboot host
+  provisioner "remote-exec" {
+    inline = [
+      "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'",
+      "echo 'rebooting host'",
+      "sudo init 6",
+    ]
+  }
+
+  depends_on = [ terraform_data.kubeadm_config ]
+}

@@ -7,3 +7,9 @@ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-ku
 - helm
 - calico + firewall
 - rename cluster
+
+
+This Terraform module is using remote-exec provisionners, which is based on SSH. \
+It's recommended to have a working SSH agent
+```ssd-add -l```
+

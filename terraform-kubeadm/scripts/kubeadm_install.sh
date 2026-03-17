@@ -47,7 +47,7 @@ done
 # Stop script if component already installed
 components_list="containerd kubeadm kubelet kubectl"
 for component in $components_list; do
-	if [ "$(command -v $component)" ] || [ "$(sudo systemctl status $component | grep -w 'Active:')" ] || [ "$(dpkg -l | grep -w $component)" ]; then
+	if [ "$(command -v $component)" ] || [ "$(sudo systemctl is-active $component)" = 'active' ] || [ "$(dpkg -l | grep -w $component)" ]; then
     echo "info: component already installed: $component"
     at_least_one_component_exists='true'
 	fi
@@ -74,41 +74,42 @@ install_containerd() {
   sudo apt remove -y $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
 
   if [ "$DISTRIBUTION" = 'debian' ]; then
-    # Add Docker's official GPG key:
-    sudo apt update
-    sudo apt install -y ca-certificates curl
-    sudo install -m 0755 -d /etc/apt/keyrings
-    sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
+# Add Docker's official GPG key:
+sudo apt update
+sudo apt install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-    # Add the repository to Apt sources:
-    echo " \
-      Types: deb
-      URIs: https://download.docker.com/linux/debian
-      Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
-      Components: stable
-      Signed-By: /etc/apt/keyrings/docker.asc
-    " > '/etc/apt/sources.list.d/docker.sources'
+# Add the repository to Apt sources:
+cat <<EOF | sudo tee /etc/apt/sources.list.d/docker.sources
+Types: deb
+URIs: https://download.docker.com/linux/debian
+Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
 
   elif [ "$DISTRIBUTION"= 'ubuntu' ]; then
-    # Add Docker's official GPG key:
-    sudo apt update
-    sudo apt install -y ca-certificates curl
-    sudo install -m 0755 -d /etc/apt/keyrings
-    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
+# Add Docker's official GPG key:
+sudo apt update
+sudo apt install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-    # Add the repository to Apt sources:
-    echo " \
-      Types: deb
-      URIs: https://download.docker.com/linux/ubuntu
-      Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
-      Components: stable
-      Signed-By: /etc/apt/keyrings/docker.asc
-    " > '/etc/apt/sources.list.d/docker.sources'
+# Add the repository to Apt sources:
+cat <<EOF | sudo tee /etc/apt/sources.list.d/docker.sources
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
   fi
 
   sudo apt update
+  # sudo apt full-upgrade -y
   sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
   sudo mkdir -p /etc/containerd
@@ -121,18 +122,18 @@ install_containerd() {
 # Install kubernetes components
 # Usage: install_kube 
 install_kube() {
-  echo " \
-    overlay
-    br_netfilter
-    TEST
-  " > '/etc/modules-load.d/k8s.conf'
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+overlay
+br_netfilter
+EOF
   sudo modprobe overlay
   sudo modprobe br_netfilter
 
-  echo " \
-    net.bridge.bridge-nf-call-ip6tables = 1
-    net.bridge.bridge-nf-call-iptables = 1
-  " > '/etc/sysctl.d/k8s.conf'
+cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+net.ipv4.ip_forward                 = 1
+EOF
   sudo sysctl --system
 
   sudo apt update
@@ -151,7 +152,6 @@ install_kube() {
 deactivate_swap
 install_containerd
 install_kube
-
 
 
 exit

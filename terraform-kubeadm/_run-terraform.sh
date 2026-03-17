@@ -1,8 +1,8 @@
 #!/bin/sh
 
 
-rm -f terraform.tfstate*
-rm -f .terraform*
+rm -rf terraform.tfstate*
+rm -rf .terraform*
 
 terraform init
 terraform plan -out .terraform.plan

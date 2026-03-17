@@ -20,6 +20,6 @@ variable "hosts" {
 
 variable "host_sudo_password" {
   description = "Enter sudo password to execute scripts on hosts. All hosts must have the same password"
-  type = string
+  type        = string
   # sensitive = true
 }

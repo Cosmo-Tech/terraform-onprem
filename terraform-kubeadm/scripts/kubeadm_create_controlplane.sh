@@ -16,7 +16,7 @@ done
 # Stop script if not sudo
 if [ "$(id -u)" != "0" ]; then
   echo "sudo is required"
-  exit
+  exit 1
 fi
 
 
@@ -24,12 +24,25 @@ admin_user="$(logname)"
 admin_user_home="$(getent passwd $admin_user | cut -d: -f6)"
 
 
+
 # --- Install controlplane
-# Exit if controlplane already exists (avoid duplicating firewall rules)
 kubeconfig_file='/etc/kubernetes/admin.conf'
+
+# Add kubeconfig to admin user
+# Usage: copy_kubeconfig_file_to_user_home
+copy_kubeconfig_file_to_user_home() {
+  mkdir -p "$admin_user_home/.kube"
+  sudo cp -f "$kubeconfig_file" "$admin_user_home/.kube/config"
+  sudo chown "$admin_user:$admin_user" "$admin_user_home/.kube/config"
+}
+
+# Exit if controlplane already exists (avoid duplicating firewall rules)
 if [ -f "$kubeconfig_file" ] || [ "$(sudo kubectl --kubeconfig $kubeconfig_file get nodes | grep -w control-plane)" ]; then
-  echo 'error: controlplane already exists'
-  exit
+  echo 'info: controlplane already exists, skipping'
+
+  # Controlplane already exists, it means we can copy/paste the existing kubeconfig file to user home
+  copy_kubeconfig_file_to_user_home
+  exit 0
 fi
 
 # Init controlplane
@@ -39,13 +52,11 @@ if [ -f "$kubeadm_config" ]; then
   sudo kubeadm init --config "$kubeadm_config"
 else
   echo "error: missing kubeadm init config file $kubeadm_config"
-  exit
+  exit 0
 fi
 
-# Add kubeconfig to admin user
-mkdir -p "$admin_user_home/.kube"
-sudo cp '/etc/kubernetes/admin.conf' "$admin_user_home/.kube/config"
-sudo chown "$admin_user:$admin_user" "$admin_user_home/.kube/config"  
+# If the script is running until here, it's time to add the kubeconfig file to user home 
+copy_kubeconfig_file_to_user_home
 # --- Install controlplane
 
 

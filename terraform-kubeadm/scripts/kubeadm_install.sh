@@ -5,6 +5,7 @@
 #  - this script install only packages on the hosts, controlplane & nodes are created in others scripts. 
 #  - differents env var are used in this script (all starting with "COSMO_KUBERNETES")
 
+set -x
 
 COSMO_KUBERNETES_VERSION='1.35'
 echo "COSMO_KUBERNETES_VERSION=$COSMO_KUBERNETES_VERSION"
@@ -30,7 +31,7 @@ if [ "$DISTRIBUTION" = 'debian' ] || [ "$DISTRIBUTION" = 'ubuntu' ]; then
   continue
 else
   echo "error: unsupported Linux distribution '$DISTRIBUTION'"
-  exit
+  exit 1
 fi
 
 
@@ -53,7 +54,7 @@ for component in $components_list; do
 	fi
 done
 if [ "$at_least_one_component_exists" = 'true' ]; then
-  exit
+  exit 0
 fi
 
 

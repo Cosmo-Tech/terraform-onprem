@@ -5,7 +5,8 @@ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-ku
 - kubeadm/kubelet
 - kubectl
 - helm
-- calico + firewall
+- calico
+- firewall - nft chain COSMO-KUBE
 - rename cluster
 
 

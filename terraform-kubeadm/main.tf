@@ -71,7 +71,7 @@ resource "terraform_data" "kubeadm_install" {
 
 # Configure Kubeadm controlplane
 resource "terraform_data" "kubeadm_config_controlplane" {
-  for_each = var.hosts
+  for_each = { for key, value in var.hosts : key => value if value.type == "controlplane" }
 
   connection {
     host  = each.value.ip
@@ -88,66 +88,17 @@ resource "terraform_data" "kubeadm_config_controlplane" {
 
   # Install controlplane on host with type "controlplane" from terraform.tfvars
   provisioner "remote-exec" {
-    inline = each.value.type == "controlplane" ? [
+    inline = [
       "${local.command_auth_sudo}",
       "cd /tmp",
       "script='kubeadm_create_controlplane.sh'",
       "sudo chmod +x $script",
       "sudo sh -c \"./$script\"",
-    ] : ["echo ''"]
+    ]
   }
 
   depends_on = [terraform_data.kubeadm_install]
 }
-
-
-# # Configure Kubeadm nodes
-# resource "terraform_data" "kubeadm_config_nodes" {
-#   for_each = var.hosts
-
-#   connection {
-#     host  = each.value.ip
-#     port  = each.value.port
-#     user  = each.value.user
-#     agent = true
-#   }
-
-#   # Install nodes on hosts without type "controlplane" from terraform.tfvars
-#   provisioner "remote-exec" {
-#     inline = each.value.type != "controlplane" ? [
-#       "${local.command_auth_sudo}",
-#       "cd /tmp",
-#       "script='kubeadm_create_node.sh'",
-#       "sudo chmod +x $script",
-#       "sudo sh -c \"./$script\"",
-#     ] : ["echo ''"]
-#   }
-
-#   depends_on = [terraform_data.kubeadm_config_controlplane]
-# }
-
-
-# # Get kubeconfig file
-# resource "terraform_data" "get_kubeconfig" {
-#   for_each = var.hosts
-
-#   connection {
-#     host  = each.value.ip
-#     port  = each.value.port
-#     user  = each.value.user
-#     agent = true
-#   }
-
-#   # Get kubeconfig file
-#   provisioner "remote-exec" {
-#     inline = each.value.type == "controlplane" ? [
-#       "${local.command_auth_sudo}",
-#       "sudo cat /etc/kubernetes/admin.conf",
-#     ] : ["echo ''"]
-#   }
-
-#   depends_on = [terraform_data.kubeadm_config_controlplane]
-# }
 
 
 # Add nodes to the kubeadm cluster
@@ -156,24 +107,49 @@ resource "terraform_data" "kubeadm_nodes" {
 
   connection {
     host  = each.value.ip
+    port  = each.value.port
     user  = each.value.user
     agent = true
   }
 
   provisioner "remote-exec" {
     inline = [
+      "set -x",
+      "${local.command_auth_sudo}",
       "if [ -f /etc/kubernetes/kubelet.conf ]; then",
-      "  echo 'info: node already joined, skipping...'",
-      "  exit 0",
+      "echo 'info: node already joined, skipping...'",
+      "exit 0",
       "fi",
       "sudo kubeadm join ${local.kubeadm_controlplane_ip}:6443 --token ${local.kubeadm_join_token} --discovery-token-unsafe-skip-ca-verification"
     ]
   }
 
-  depends_on = [
-    terraform_data.kubeadm_config_controlplane,
-  ]
+  depends_on = [terraform_data.kubeadm_config_controlplane]
 }
+
+
+# Get kubeconfig file
+resource "terraform_data" "get_kubeconfig" {
+  for_each = { for key, value in var.hosts : key => value if value.type == "controlplane" }
+
+  connection {
+    host  = each.value.ip
+    port  = each.value.port
+    user  = each.value.user
+    agent = true
+  }
+
+  # Get kubeconfig file
+  provisioner "remote-exec" {
+    inline = [
+      "${local.command_auth_sudo}",
+      "sudo cat /etc/kubernetes/admin.conf",
+    ]
+  }
+
+  depends_on = [terraform_data.kubeadm_config_controlplane]
+}
+
 
 
 # # Clean hosts

@@ -24,7 +24,6 @@ admin_user="$(logname)"
 admin_user_home="$(getent passwd $admin_user | cut -d: -f6)"
 
 
-
 # --- Install controlplane
 kubeconfig_file='/etc/kubernetes/admin.conf'
 

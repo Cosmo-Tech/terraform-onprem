@@ -2,10 +2,9 @@
 
 # This script aims to install kubeadm on Debian based host
 # Notes:
-#  - this script install only packages on the hosts, controlplane & nodes are created in others scripts. 
+#  - this script install only packages on the hosts, controlplane & nodes are not created here. 
 #  - differents env var are used in this script (all starting with "COSMO_KUBERNETES")
 
-set -x
 
 COSMO_KUBERNETES_VERSION='1.35'
 echo "COSMO_KUBERNETES_VERSION=$COSMO_KUBERNETES_VERSION"
@@ -26,11 +25,11 @@ get_os_distribution(){
 
 
 # Stop script if unsupported distribution
-DISTRIBUTION="$(get_os_distribution)"
-if [ "$DISTRIBUTION" = 'debian' ] || [ "$DISTRIBUTION" = 'ubuntu' ]; then
+linux_distribution="$(get_os_distribution)"
+if [ "$linux_distribution" = 'debian' ] || [ "$linux_distribution" = 'ubuntu' ]; then
   continue
 else
-  echo "error: unsupported Linux distribution '$DISTRIBUTION'"
+  echo "error: unsupported Linux distribution '$linux_distribution'"
   exit 1
 fi
 
@@ -74,7 +73,7 @@ deactivate_swap() {
 install_containerd() {
   sudo apt remove -y $(dpkg --get-selections docker.io docker-compose docker-compose-v2 docker-doc podman-docker containerd runc | cut -f1)
 
-  if [ "$DISTRIBUTION" = 'debian' ]; then
+  if [ "$linux_distribution" = 'debian' ]; then
 # Add Docker's official GPG key:
 sudo apt update
 sudo apt install ca-certificates curl
@@ -91,7 +90,7 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 EOF
 
-  elif [ "$DISTRIBUTION"= 'ubuntu' ]; then
+  elif [ "$linux_distribution"= 'ubuntu' ]; then
 # Add Docker's official GPG key:
 sudo apt update
 sudo apt install ca-certificates curl

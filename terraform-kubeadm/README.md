@@ -2,12 +2,11 @@
 
 https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 
-- kubeadm/kubelet
-- kubectl
+- kubeadm/kubelet/kubectl
+- rename cluster
 - helm
 - calico
 - firewall - nft chain COSMO-KUBE
-- rename cluster
 
 
 This Terraform module is using remote-exec provisionners, which is based on SSH. \

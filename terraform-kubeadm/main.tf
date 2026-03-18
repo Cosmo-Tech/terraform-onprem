@@ -24,8 +24,6 @@ resource "random_string" "kubeadm_join_token_secret" {
 }
 
 
-
-
 data "template_file" "kubeadm_init_config" {
   template = templatefile("${path.module}/kube_objects/kubeadm.config.init.yaml", local.kubeadm_init_config_values)
 }
@@ -131,48 +129,12 @@ resource "terraform_data" "kubeadm_nodes" {
 resource "terraform_data" "get_kubeconfig" {
   for_each = { for key, value in var.hosts : key => value if value.type == "controlplane" }
 
-  connection {
-    host  = each.value.ip
-    port  = each.value.port
-    user  = each.value.user
-    agent = true
-  }
-
-  # Get kubeconfig file
-  provisioner "remote-exec" {
-    inline = [
-      "${local.command_auth_sudo}",
-      "sudo cat /etc/kubernetes/admin.conf",
-    ]
+  provisioner "local-exec" {
+    command = "echo '' > /tmp/kubeconfig_${each.key}.yaml && ssh -o StrictHostKeyChecking=no -p ${each.value.port} ${each.value.user}@${each.value.ip} 'echo \"${var.host_sudo_password}\" | sudo -S cat /etc/kubernetes/admin.conf' > /tmp/kubeconfig_${each.key}.yaml"
   }
 
   depends_on = [terraform_data.kubeadm_config_controlplane]
 }
-
-
-
-# # Clean hosts
-# resource "terraform_data" "cleaning" {
-#   for_each = var.hosts
-
-#   connection {
-#     host = each.value.ip
-#     port = each.value.port
-#     user = each.value.user
-#     agent  = true
-#   }
-
-#   # Clean hosts
-#   provisioner "remote-exec" {
-#     inline = [
-#       "${local.command_auth_sudo}",
-#       "sudo rm -f /tmp/terraform_*.sh",
-#     ]
-#   }
-
-#   depends_on = [ terraform_data.kubeadm_config ]
-# }
-
 
 # # Reboot host
 # resource "terraform_data" "host_reboot_final" {

@@ -1,5 +1,5 @@
 locals {
-  main_name               = "kob-${var.cluster_stage}-${var.cluster_name}"
+  main_name               = var.override_naming_convention == true ? var.cluster_name : "kob-${var.cluster_stage}-${var.cluster_name}"
   command_auth_sudo       = "printf '%s\n' \"${var.host_sudo_password}\" | sudo -p \"\" -S echo 'authenticated with sudo!'"
   kubeadm_controlplane_ip = [for host in var.hosts : host if host.type == "controlplane"][0].ip
   kubeadm_join_token      = "${random_string.kubeadm_join_token_id.result}.${random_string.kubeadm_join_token_secret.result}"

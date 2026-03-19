@@ -13,6 +13,16 @@ variable "cluster_stage" {
   }
 }
 
+variable "override_naming_convention" {
+  description = "Override the default naming convention (false => 'kob-<cluster_stage>-<cluster_name>'; true => cluster_name = the exact name that will be used)"
+  type        = bool
+}
+
+variable "state_host" {
+  description = "DNS record or IP of the server hosting the Terraform state"
+  type        = string
+}
+
 variable "hosts" {
   description = "List of host where to perform the installation"
   type        = map(any)

@@ -1,6 +1,15 @@
 cluster_name  = "devops"
 cluster_stage = "dev"
 
+# Override the default naming convention
+#  - false => "kob-<cluster_stage>-<cluster_name>"
+#  - true  => cluster_name = the exact name that will be used
+override_naming_convention = "true"
+
+# State host can be DNS record, IP address, and must start with http:// or https://
+# state_host = "http://192.168.x.x"
+state_host = "https://cosmotechstates.onpremise.platform.cosmotech.com"
+
 # How to fill the 'hosts' map below
 # "Host" means the Linux server on which the Kubernetes node will be install (it can be VM, bare-metal etc...). The only requirements are: Debian-based host + root SSH access
 # - Edit IP addresses below according to your situation (they will be used to connect through SSH)
@@ -36,16 +45,16 @@ hosts = {
     port = "22"
     user = "admin"
   }
-#   host-06 = {
-#     type = "highmemory"
-#     ip   = "192.168.0.16"
-#     port = "22"
-#     user = "admin"
-#   }
-#   host-07 = {
-#     type = "highcpu"
-#     ip   = "192.168.0.17"
-#     port = "22"
-#     user = "admin"
-#   }
+  #   host-06 = {
+  #     type = "highmemory"
+  #     ip   = "192.168.0.16"
+  #     port = "22"
+  #     user = "admin"
+  #   }
+  #   host-07 = {
+  #     type = "highcpu"
+  #     ip   = "192.168.0.17"
+  #     port = "22"
+  #     user = "admin"
+  #   }
 }

@@ -1,5 +1,5 @@
 locals {
-
+  main_name      = var.override_naming_convention == true ? var.cluster_name : "kob-${var.cluster_stage}-${var.cluster_name}"
   cluster_domain = "${var.cluster_name}.${var.domain_zone}"
 
   # Get the IP from the existing nodes
@@ -31,6 +31,6 @@ module "dns_challenges_requirements_azure" {
   main_name              = local.main_name
   dns_challenge_provider = var.dns_challenge_provider
   domain_zone            = var.domain_zone
-  cluster_ip = local.cluster_ip
-  cluster_domain = local.cluster_domain
+  cluster_ip             = local.cluster_ip
+  cluster_domain         = local.cluster_domain
 }

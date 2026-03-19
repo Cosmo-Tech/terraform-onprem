@@ -4,11 +4,18 @@
 #  Kubernetes cluster
 
 ## Requirements
-* working Linux hosts
 * [terraform](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
-    > If using Windows, Terraform must be accessible from PATH
 * situational
-    * [docker](https://docs.docker.com/engine/install/) for the Caddy state storage
+    * **docker-state-storage**
+        * [docker](https://docs.docker.com/engine/install/) for the Caddy state storage
+    * **terraform-kubeadm**
+        * at least 5 working Linux hosts (Debian/Ubuntu, because scripts are based on [APT](https://fr.wikipedia.org/wiki/Advanced_Packaging_Tool) & [nftables](https://wiki.nftables.org/))
+        * sudo SSH access to all the hosts
+        * same sudo passwords on all the hosts (can be temporary)
+        * minimal resources requirements are written at the end of this README file
+    * **terraform-cluster**
+        * a working [Kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) cluster (can be installed from `terraform-kubeadm`, but is not mandatory)
+        * admin access to the Kubeadm cluster
 
 ## How to
 * clone current repo
@@ -28,6 +35,25 @@
         docker compose -f docker-state-storage/docker-compose.yaml up -d
         ```
     > After have setuped the DNS challenge, you can remove `tls internal` from `docker-compose.yaml` to improve security
+* *optional* deploy `terraform-kubeadm`
+    > This module allows to quickly install [Kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) on top of existing Linux hosts (sudo SSH access is required) \
+    > You can skip this step if you already have [a working Kubeadm cluster](https://kubernetes.io/docs/reference/setup-tools/kubeadm/)
+    * fill `terraform-kubeadm/terraform.tfvars` variables according to your needs
+    * *optional* it's recommended to have a working SSH agent
+        > This Terraform module is using remote-exec provisionners, which is based on SSH. \
+        ```ssd-add -l```
+    * run pre-configured script
+        > :pencil2: comment/uncomment the `terraform apply` line at the end to get a plan without deploy anything
+        * Linux
+            ```
+            ./_run-terraform.sh
+            ```
+    * install cluster context locally
+        * once finished, the kubeconfig file of the new cluster might be ready in /tmp/kubeconfig_xxxxx.yaml
+        * you can add it to your existing kubeconfig file by running this script:
+            ```
+            ./_merge-kubeconfig.sh </tmp/kubeconfig_xxxxx.yaml>
+            ```
 * deploy `terraform-cluster`
     * fill `terraform-cluster/terraform.tfvars` variables according to your needs
     * run pre-configured script
@@ -35,10 +61,6 @@
         * Linux
             ```
             ./_run-terraform.sh
-            ```
-        * Windows
-            ```
-            ./_run-terraform.ps1
             ```
 * situational:
     * Add DNS records to your DNS zone (3 records: 1x cluster, 1x specific Superset, 1x state storage)
@@ -66,13 +88,17 @@
 ## Developpers
 * Terraform modules
     * **terraform-cluster**
-        * *kubeadm* = Install kubeadm on Linux hosts. This module is optional, it depends on the needs
         * *longhorn* = Storage solution
         * *metallb* = Load-balancer for on-premise Kubernetes clusters
         * *dns_challenges_requirements* =
             * create the DNS provider requirements to run cert-manager with DNS-01 challenge (HTTP-01 challenges might not work in local networks)
             * store relevant informations in a Kubernetes secrets `dns-challenge`
         * *storage* = persistent storage for Kubernetes statefulsets (this module is not used directly here, it's always used in remote modules through its Github URL)
+    * **terraform-kubeadm**
+        * install [Kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) on top of existing Linux hosts
+        * install Helm on the controlplane host
+        * install Calico on the Kubeadm cluster
+        * configure firewall (with [nftables](https://wiki.nftables.org/)) -> it creates a dedicated nftables chain "COSMO-KUBE"
 * Docker
     * **docker-state-storage**
         * Create a place to host the Terraform states files

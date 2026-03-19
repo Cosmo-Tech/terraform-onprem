@@ -46,7 +46,7 @@ resource "kubernetes_persistent_volume" "pv" {
       csi {
         driver        = "driver.longhorn.io"
         fs_type       = "ext4"
-        volume_handle = "${local.volume_name}"
+        volume_handle = local.volume_name
         volume_attributes = {
           numberOfReplicas    = "1"
           staleReplicaTimeout = "30"

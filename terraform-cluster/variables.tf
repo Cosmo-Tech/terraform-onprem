@@ -1,8 +1,4 @@
 
-locals {
-  main_name = var.override_naming_convention == true ? var.cluster_name : "kob-${var.cluster_stage}-${var.cluster_name}"
-}
-
 variable "cluster_name" {
   description = "Kubernetes cluster name"
   type        = string
@@ -28,17 +24,12 @@ variable "override_naming_convention" {
   type        = bool
 }
 
-variable "install_kubeadm" {
-  description = "Is kubeadm already installed ?"
-  type        = bool
+variable "state_host" {
+  description = "DNS record or IP of the server hosting the Terraform state"
+  type        = string
 }
 
 variable "dns_challenge_provider" {
   description = "Name of the provider where the DNS challenge needs to be setuped. This must match with the module name in 'terraform-dns-challenge-requirements'"
-  type        = string
-}
-
-variable "state_host" {
-  description = "DNS record or IP of the server hosting the Terraform state"
   type        = string
 }

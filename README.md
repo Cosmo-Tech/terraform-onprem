@@ -35,11 +35,11 @@
         docker compose -f docker-state-storage/docker-compose.yaml up -d
         ```
     > After have setuped the DNS challenge, you can remove `tls internal` from `docker-compose.yaml` to improve security
-* *optional* deploy `terraform-kubeadm`
+* *(optional)* deploy `terraform-kubeadm`
     > This module allows to quickly install [Kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) on top of existing Linux hosts (sudo SSH access is required) \
     > You can skip this step if you already have [a working Kubeadm cluster](https://kubernetes.io/docs/reference/setup-tools/kubeadm/)
     * fill `terraform-kubeadm/terraform.tfvars` variables according to your needs
-    * *optional* it's recommended to have a working SSH agent
+    * *(optional)* it's recommended to have a working SSH agent
         > This Terraform module is using remote-exec provisionners, which is based on SSH. \
         ```ssd-add -l```
     * run pre-configured script
@@ -105,6 +105,19 @@
         * A simple HTTP server will be created, and can be used from Terraform backend type "HTTP" with TLS & authentication
         * Terraform states are stored in local volume (check docker-compose.yaml file for more details)
         * This is just a quick way to have a place to store the state (any other existing HTTP server can be use)
+
+## Minimal resources requirements
+> Note: these requirements are minimals, and can be differents depending on your situation.
+
+|Host|CPU|Memory|Usage|
+|----|---|------|-----|
+|States storage|1|1 Go|Store Terraform & Babylon states files|
+|Kubeadm control-plane|[check requirements here](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)|[check requirements here](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)|Kubeadm main host|
+|Kubeadm node db|16|16 Go|Host Cosmo Tech platform databases|
+|Kubeadm node services|16|16 Go|Host Cosmo Tech platform services required by the API|
+|Kubeadm node monitoring|4|8 Go|Host Cosmo Tech platform monitoring|
+|Kubeadm node basic|16|16 Go|Run Cosmo Tech platform simulations|
+
 
 <br>
 <br>

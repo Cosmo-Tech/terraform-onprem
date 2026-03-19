@@ -54,7 +54,7 @@ rm -rf $COSMO_TF_MODULE_TO_RUN/terraform.tfstate*
 
 
 echo ''
-if [ -z $TF_HTTP_USERNAME ] || [ -z $TF_HTTP_PASSWORD ]; then
+if [ -z "$TF_HTTP_USERNAME" ] || [ -z "$TF_HTTP_PASSWORD" ]; then
     echo "error: empty TF_HTTP_USERNAME or TF_HTTP_PASSWORD (required for backend authentication)"
     echo "  export TF_HTTP_USERNAME="
     echo "  export TF_HTTP_PASSWORD="
@@ -86,11 +86,11 @@ fi
 
 
 # Deploy
-terraform -chdir=$COSMO_TF_MODULE_TO_RUN init -upgrade -reconfigure -backend-config="address=$state_url" -backend-config="lock_address=$state_url/lock" -backend-config="unlock_address=$state_url/lock"
-terraform -chdir=$COSMO_TF_MODULE_TO_RUN plan -lock=false -out .terraform.plan
+terraform -chdir="$COSMO_TF_MODULE_TO_RUN" init -upgrade -reconfigure -backend-config="address=$state_url" -backend-config="lock_address=$state_url/lock" -backend-config="unlock_address=$state_url/lock"
+terraform -chdir="$COSMO_TF_MODULE_TO_RUN" plan -lock=false -out .terraform.plan
 
 if [ "$(echo $COSMO_TF_APPLY)" = 'true' ]; then
-    terraform -chdir=$COSMO_TF_MODULE_TO_RUN apply -lock=false .terraform.plan
+    terraform -chdir="$COSMO_TF_MODULE_TO_RUN" apply -lock=false .terraform.plan
 else
     echo ''
     echo "Terraform plan can be applied with:"

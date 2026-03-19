@@ -77,7 +77,7 @@ install_helm() {
 # Install Calico
 # Usage: install_calico
 install_calico() {
-  if [ "$(helm -n tigera-operator list | grep -w calico)" ]; then
+  if [ "$(helm --kubeconfig $kubeconfig_file -n tigera-operator list | grep -w calico)" ]; then
     echo 'info: calico already installed, skipping'
     exit 0
   fi
@@ -91,8 +91,21 @@ install_calico() {
     --set installation.calicoNetwork.ipPools[0].encapsulation=IPIP
 
   # Wait to ensure CRD are created
-  sleep 10
-  kubectl --kubeconfig $kubeconfig_file set env daemonset/calico-node -n calico-system IP_AUTODETECTION_METHOD=can-reach=8.8.8.8
+  calico_namespace='calico-system'
+  timeout=5
+  waited=0
+  echo "start waitings for namespace $calico_namespace to be available (tiemout=$timeout seconds)"
+  while [ -z "$(kubectl --kubeconfig $kubeconfig_file get namespaces | grep -w $calico_namespace)" ]; do
+    if [ "$(echo $waited)" != "$(echo $timeout)" ]; then
+      echo "waited $waited sec"
+    else
+      break
+    fi
+
+    sleep 1
+    waited=$((waited+1))
+  done
+  kubectl --kubeconfig $kubeconfig_file set env daemonset/calico-node -n $calico_namespace IP_AUTODETECTION_METHOD=can-reach=8.8.8.8
 }
 
 

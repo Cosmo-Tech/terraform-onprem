@@ -68,7 +68,7 @@ resource "terraform_data" "kubeadm_install" {
 
 
 # Configure Kubeadm controlplane
-resource "terraform_data" "kubeadm_config_controlplane" {
+resource "terraform_data" "kubeadm_controlplane" {
   for_each = { for key, value in var.hosts : key => value if value.type == "controlplane" }
 
   connection {
@@ -78,7 +78,7 @@ resource "terraform_data" "kubeadm_config_controlplane" {
     agent = true
   }
 
-  # Send kubeadm init config file to controlplane host
+  # Send Kubeadm init config file to controlplane host
   provisioner "file" {
     content     = data.template_file.kubeadm_init_config.rendered
     destination = "/tmp/kubeadm.config.init.yaml"
@@ -117,11 +117,12 @@ resource "terraform_data" "kubeadm_nodes" {
       "echo 'info: this node is already in cluster ${local.main_name}, skipping'",
       "exit 0",
       "fi",
+      "set -x",
       "sudo kubeadm join ${local.kubeadm_controlplane_ip}:6443 --token ${local.kubeadm_join_token} --discovery-token-unsafe-skip-ca-verification"
     ]
   }
 
-  depends_on = [terraform_data.kubeadm_config_controlplane]
+  depends_on = [terraform_data.kubeadm_controlplane]
 }
 
 
@@ -133,8 +134,9 @@ resource "terraform_data" "get_kubeconfig" {
     command = "echo '' > /tmp/kubeconfig_${each.key}.yaml && ssh -o StrictHostKeyChecking=no -p ${each.value.port} ${each.value.user}@${each.value.ip} 'echo \"${var.host_sudo_password}\" | sudo -S cat /etc/kubernetes/admin.conf' > /tmp/kubeconfig_${each.key}.yaml"
   }
 
-  depends_on = [terraform_data.kubeadm_config_controlplane]
+  depends_on = [terraform_data.kubeadm_controlplane]
 }
+
 
 # # Reboot host
 # resource "terraform_data" "host_reboot_final" {

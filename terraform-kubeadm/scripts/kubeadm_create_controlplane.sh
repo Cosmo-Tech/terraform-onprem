@@ -23,6 +23,8 @@ fi
 admin_user="$(logname)"
 admin_user_home="$(getent passwd $admin_user | cut -d: -f6)"
 
+kubeconfig_file='/etc/kubernetes/admin.conf'
+
 
 # Add kubeconfig to admin user
 # Usage: copy_kubeconfig_file_to_user_home
@@ -36,7 +38,6 @@ copy_kubeconfig_file_to_user_home() {
 # Install controlplane
 # Usage: install_controlplane
 install_controlplane() {
-  kubeconfig_file='/etc/kubernetes/admin.conf'
 
   # Exit if controlplane already exists (avoid duplicating firewall rules)
   if [ -f "$kubeconfig_file" ] || [ "$(sudo kubectl --kubeconfig $kubeconfig_file get nodes | grep -w control-plane)" ]; then
@@ -81,9 +82,9 @@ install_calico() {
     exit 0
   fi
 
-  helm repo add projectcalico https://docs.tigera.io/calico/charts
-  helm repo update
-  helm install calico projectcalico/tigera-operator \
+  helm --kubeconfig $kubeconfig_file repo add projectcalico https://docs.tigera.io/calico/charts
+  helm --kubeconfig $kubeconfig_file repo update
+  helm --kubeconfig $kubeconfig_file install calico projectcalico/tigera-operator \
     --namespace tigera-operator \
     --create-namespace \
     --set installation.calicoNetwork.ipPools[0].cidr=192.168.0.0/16 \
@@ -91,7 +92,7 @@ install_calico() {
 
   # Wait to ensure CRD are created
   sleep 10
-  kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD=can-reach=8.8.8.8
+  kubectl --kubeconfig $kubeconfig_file set env daemonset/calico-node -n calico-system IP_AUTODETECTION_METHOD=can-reach=8.8.8.8
 }
 
 
@@ -139,8 +140,9 @@ configure_firewall() {
 
 install_controlplane
 install_helm
-install_calico
 configure_firewall
+install_calico
+
 
 
 exit

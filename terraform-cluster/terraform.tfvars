@@ -5,7 +5,7 @@ domain_zone   = "onpremise.platform.cosmotech.com"
 # Override the default naming convention
 #  - false => "kob-<cluster_stage>-<cluster_name>"
 #  - true  => cluster_name = the exact name that will be used
-override_naming_convention = "true"
+override_naming_convention = "false"
 
 # State host can be DNS record, IP address, and must start with http:// or https://
 # state_host = "http://192.168.x.x"

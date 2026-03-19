@@ -89,7 +89,7 @@ fi
 terraform -chdir=$COSMO_TF_MODULE_TO_RUN init -upgrade -reconfigure -backend-config="address=$state_url" -backend-config="lock_address=$state_url/lock" -backend-config="unlock_address=$state_url/lock"
 terraform -chdir=$COSMO_TF_MODULE_TO_RUN plan -lock=false -out .terraform.plan
 
-if [ "$(echo COSMO_TF_APPLY)" = 'true' ]; then
+if [ "$(echo $COSMO_TF_APPLY)" = 'true' ]; then
     terraform -chdir=$COSMO_TF_MODULE_TO_RUN apply -lock=false .terraform.plan
 else
     echo ''

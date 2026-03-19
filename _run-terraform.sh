@@ -106,7 +106,7 @@ if [ "$COSMO_TF_MODULE_TO_RUN" = 'terraform-kubeadm' ] && [ "$(ls /tmp/ | grep k
     echo ''
     echo 'Kubeconfig file is available at /tmp/'
     echo 'you can merge it with your existing kubeconfig file with:'
-    echo '  ./merge-kubeconfig.sh /tmp/FILENAME'
+    echo '  ./_merge-kubeconfig.sh /tmp/FILENAME'
 fi
 
 

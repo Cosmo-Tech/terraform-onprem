@@ -43,7 +43,7 @@ override_naming_convention="$(get_var_value $COSMO_TF_MODULE_TO_RUN/terraform.tf
 if [ "$(echo $override_naming_convention)" = 'true' ]; then
     state_file_name="tfstate-cluster-kob-$cluster_name"
 else
-    state_file_name="tfstate-cluster-kob-$cluster_stage-$cluster_name"
+    state_file_name="tfstate-cluster-kob-$cluster_stage-$cluster_name-$COSMO_TF_MODULE_TO_RUN"
 fi
 state_url="$state_host/$state_file_name"
 
@@ -98,6 +98,15 @@ else
     echo ''
     echo "you can remove it with:"
     echo "  unset COSMO_TF_APPLY"
+fi
+
+
+# Just a message to display after have runned terraform-kubeadm
+if [ "$COSMO_TF_MODULE_TO_RUN" = 'terraform-kubeadm' ] && [ "$(ls /tmp/ | grep kubeconfig_)" ]; then
+    echo ''
+    echo 'Kubeconfig file is available at /tmp/'
+    echo 'you can merge it with your existing kubeconfig file with:'
+    echo '  ./merge-kubeconfig.sh /tmp/FILENAME'
 fi
 
 

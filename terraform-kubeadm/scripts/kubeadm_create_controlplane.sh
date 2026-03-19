@@ -49,7 +49,7 @@ install_controlplane() {
   fi
 
   # Init controlplane
-  kubeadm_config='/tmp/kubeadm.config.init.yaml'
+  local kubeadm_config='/tmp/kubeadm.config.init.yaml'
   if [ -f "$kubeadm_config" ]; then
     echo "info: found kubeadm init config file $kubeadm_config"
     sudo kubeadm init --config "$kubeadm_config"
@@ -90,11 +90,11 @@ install_calico() {
     --set installation.calicoNetwork.ipPools[0].cidr=192.168.0.0/16 \
     --set installation.calicoNetwork.ipPools[0].encapsulation=IPIP
 
-  # Wait to ensure CRD are created
-  calico_namespace='calico-system'
-  timeout=5
-  waited=0
-  echo "start waitings for namespace $calico_namespace to be available (tiemout=$timeout seconds)"
+  # Wait for calico to have created its namespace
+  local timeout=120
+  local waited=0
+  local calico_namespace='calico-system'
+  echo "start waiting for namespace '$calico_namespace' to be ready"
   while [ -z "$(kubectl --kubeconfig $kubeconfig_file get namespaces | grep -w $calico_namespace)" ]; do
     if [ "$(echo $waited)" != "$(echo $timeout)" ]; then
       echo "waited $waited sec"
@@ -105,6 +105,7 @@ install_calico() {
     sleep 1
     waited=$((waited+1))
   done
+
   kubectl --kubeconfig $kubeconfig_file set env daemonset/calico-node -n $calico_namespace IP_AUTODETECTION_METHOD=can-reach=8.8.8.8
 }
 
@@ -112,14 +113,14 @@ install_calico() {
 # Configure firewall
 # Usage: configure_firewall
 configure_firewall() {
-  nftables_chain='COSMO-KUBE'
+  local nftables_chain='COSMO-KUBE'
 
   # Ensure nftables table exists
   sudo nft add table inet filter
 
   # Create a clean nftables chain dedicated for Kube:
   # -> delete chain relation -> it allows to delete the dedicated kube chain -> it allows to recreate a clean chain
-  nftables_rule_jump_id="$(sudo nft -a list chain inet filter INPUT | grep -w "jump $nftables_chain" | awk '/handle [0-9]+/ {print $NF}')"
+  local nftables_rule_jump_id="$(sudo nft -a list chain inet filter INPUT | grep -w "jump $nftables_chain" | awk '/handle [0-9]+/ {print $NF}')"
   if [ -n "$nftables_rule_jump_id" ]; then
     sudo nft delete rule inet filter INPUT handle $nftables_rule_jump_id
   fi

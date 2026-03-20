@@ -161,5 +161,5 @@ configure_firewall
 install_calico
 
 
-
+echo ''
 exit

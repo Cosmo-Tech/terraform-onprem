@@ -154,4 +154,5 @@ install_containerd
 install_kube
 
 
+echo ''
 exit

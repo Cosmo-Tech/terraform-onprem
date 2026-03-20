@@ -52,17 +52,56 @@ resource "terraform_data" "send_scripts" {
     inline = ["mkdir -p ${local.dir_tmp}"]
   }
 
-  provisioner "file" {
-    source      = "${path.module}/scripts/kubeadm_create_controlplane.sh"
-    destination = "${local.dir_tmp}/kubeadm_create_controlplane.sh"
-  }
+  # provisioner "file" {
+  #   source      = "${path.module}/scripts/kubeadm_create_controlplane.sh"
+  #   destination = "${local.dir_tmp}/kubeadm_create_controlplane.sh"
+  # }
+
+  # provisioner "file" {
+  #   source      = "${path.module}/scripts/kubeadm_install.sh"
+  #   destination = "${local.dir_tmp}/kubeadm_install.sh"
+  # }
+
+  # provisioner "file" {
+  #   source      = "${path.module}/scripts/longhorn_requirements.sh"
+  #   destination = "${local.dir_tmp}/longhorn_requirements.sh"
+  # }
 
   provisioner "file" {
-    source      = "${path.module}/scripts/kubeadm_install.sh"
-    destination = "${local.dir_tmp}/kubeadm_install.sh"
+    source      = "${path.module}/scripts/"
+    destination = "${local.dir_tmp}"
   }
 
   depends_on = [data.template_file.kubeadm_init_config]
+}
+
+
+# Install Longhorn requirements on all hosts (required packages)
+resource "terraform_data" "longhorn_requirements" {
+  for_each = var.hosts
+
+  triggers_replace = local.triggers_replace
+
+  connection {
+    host  = each.value.ip
+    port  = each.value.port
+    user  = each.value.user
+    agent = local.ssh_agent
+  }
+
+  # Install Kubeadm itself on all hosts (the binaries & required packages)
+  # https://longhorn.io/docs/1.11.1/deploy/install/#installation-requirements
+  provisioner "remote-exec" {
+    inline = [
+      "${local.command_auth_sudo}",
+      "cd ${local.dir_tmp}",
+      "script='longhorn_requirements.sh'",
+      "sudo chmod +x $script",
+      "sudo sh -c \"./$script\"",
+    ]
+  }
+
+  depends_on = [terraform_data.send_scripts]
 }
 
 

@@ -39,14 +39,13 @@ install_longhorn_requirements() {
     fi
   done
 
-
   sudo apt update
   sudo apt install -y open-iscsi
-
 }
 
 
 install_longhorn_requirements
 
 
+echo ''
 exit

@@ -111,10 +111,12 @@
             * store relevant informations in a Kubernetes secrets `dns-challenge`
         * *storage* = persistent storage for Kubernetes statefulsets (this module is not used directly here, it's always used in remote modules through its Github URL)
     * **terraform-kubeadm**
-        * install [Kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) on top of existing Linux hosts
+        * contains Shell scripts that are called from Terraform, and executed with remote-exec through SSH (requires sudo access)
+        * install [Kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) (with Kubelet & Kubectl) on top of existing Linux hosts
         * install Helm on the controlplane host
         * install Calico on the Kubeadm cluster
-        * configure firewall (with [nftables](https://wiki.nftables.org/)) -> it creates a dedicated nftables chain "COSMO-KUBE"
+        * configure firewall (with [nftables](https://wiki.nftables.org/)) -> it creates dedicated nftables chain "INPUT-COSMO-KUBE" & "INPUT-COSMO-KUBE-CONTROLPLANE"
+        * install [Longhorn requirements](https://longhorn.io/docs/latest/deploy/install/#installation-requirements) on all Linux hosts
 * Docker
     * **docker-state-storage**
         * Create a place to host the Terraform states files

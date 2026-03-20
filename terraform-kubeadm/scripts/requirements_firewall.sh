@@ -101,14 +101,14 @@ add_rules_if_controlplane() {
 
 
 # Add a chain for common rules
-add_nft_chain 'COSMO-KUBE'
-add_rules_common 'COSMO-KUBE'
+add_nft_chain 'INPUT-COSMO-KUBE'
+add_rules_common 'INPUT-COSMO-KUBE'
 
 
 # Add dedicated chain for specific controlplane rules
-add_nft_chain 'COSMO-KUBE-CONTROLPLANE'
 if [ "$(am_i_the_controlplane)" = 'true' ]; then
-  add_rules_if_controlplane 'COSMO-KUBE-CONTROLPLANE'
+  add_nft_chain 'INPUT-COSMO-KUBE-CONTROLPLANE'
+  add_rules_if_controlplane 'INPUT-COSMO-KUBE-CONTROLPLANE'
 fi
 
 

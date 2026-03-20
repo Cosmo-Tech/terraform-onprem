@@ -133,7 +133,7 @@
 | Kubeadm node services   | 16  | 16 Go  | 50 Go  | Host Cosmo Tech platform services required by the API
 | Kubeadm node monitoring | 4   | 8 Go   | 50 Go  | Host Cosmo Tech platform monitoring
 | Kubeadm node basic      | 16  | 16 Go  | 50 Go  | Run Cosmo Tech platform simulations
-| Kubeadm control-plane   | [check requirements here](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) | [check requirements here](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) | 50 Go | Kubeadm main host
+| Kubeadm control-plane   | [requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) | [requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) | 50 Go | Kubeadm main host
 
 <br>
 <br>

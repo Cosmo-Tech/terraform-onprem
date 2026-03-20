@@ -55,7 +55,7 @@
             ./_merge-kubeconfig.sh </tmp/kubeconfig_xxxxx.yaml>
             ```
 * deploy `terraform-cluster`
-    * if you didn't used `terraform-kubeadm`
+    * if you have not used `terraform-kubeadm`
         > *terraform-kubeadm* is automatically running these scripts
         * configure required firewall rules on all the hosts
             > Kubernetes, Calico, Longhorn etc.. rely on host firewall to work properly

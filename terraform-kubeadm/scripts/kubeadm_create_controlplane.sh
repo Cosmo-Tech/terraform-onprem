@@ -111,53 +111,8 @@ install_calico() {
 }
 
 
-# Configure firewall
-# Usage: configure_firewall
-configure_firewall() {
-  local nftables_chain='COSMO-KUBE'
-
-  # Ensure nftables table exists
-  sudo nft add table inet filter
-
-  # Create a clean nftables chain dedicated for Kube:
-  # -> delete chain relation -> it allows to delete the dedicated kube chain -> it allows to recreate a clean chain
-  local nftables_rule_jump_id="$(sudo nft -a list chain inet filter INPUT | grep -w "jump $nftables_chain" | awk '/handle [0-9]+/ {print $NF}')"
-  if [ -n "$nftables_rule_jump_id" ]; then
-    sudo nft delete rule inet filter INPUT handle $nftables_rule_jump_id
-  fi
-  sudo nft add chain inet filter "$nftables_chain"
-  sudo nft flush chain inet filter "$nftables_chain"
-  sudo nft delete chain inet filter "$nftables_chain"
-  sudo nft add chain inet filter "$nftables_chain"
-
-  # Create a clean rule to jump original INPUT chain to the kube dedicated chain
-  if [ -z "$(sudo nft list chain inet filter INPUT | grep -w "jump $nftables_chain")" ]; then
-    sudo nft add rule inet filter INPUT jump "$nftables_chain"
-  fi
-
-  # - allow Kubernetes API 6443
-  # - allow Kubelet API 10250
-  # - allow BGP 179 (Calico)
-  # - allow Typha 5473 (Calico)
-  # - allow IPIP (Calico)
-  # - allow Calico virtual interfaces
-  sudo nft add rule inet filter "$nftables_chain" iifname "lo" counter accept
-  sudo nft add rule inet filter "$nftables_chain" tcp dport 6443 counter accept
-  sudo nft add rule inet filter "$nftables_chain" tcp dport 10250 counter accept
-  sudo nft add rule inet filter "$nftables_chain" tcp dport 179 counter accept
-  sudo nft add rule inet filter "$nftables_chain" tcp dport 5473 counter accept
-  sudo nft add rule inet filter "$nftables_chain" ip protocol ipip counter accept
-  sudo nft add rule inet filter "$nftables_chain" iifname "cali*" counter accept
-  sudo nft add rule inet filter "$nftables_chain" iifname "tunl0" counter accept
-
-  # Save nftables ruleset
-  sudo nft list ruleset > /etc/nftables.conf
-}
-
-
 install_controlplane
 install_helm
-configure_firewall
 install_calico
 
 

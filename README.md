@@ -54,24 +54,24 @@
             ```
             ./_merge-kubeconfig.sh </tmp/kubeconfig_xxxxx.yaml>
             ```
-* if you didn't used `terraform-kubeadm`
-    > *terraform-kubeadm* is automatically running these scripts
-    * configure required firewall rules on all the hosts
-        > Kubernetes, Calico, Longhorn etc.. rely on host firewall to work properly
-        * run script on all the hosts of the cluster
-            > you can also manually configure firewalls, all rules are explicits in the script \
-            > :warning: the control-plane and nodes hosts doesn't need the exact same firewall rules
-            ```
-            ./terraform-kubeadm/scripts/requirements_firewall.sh
-            ```
-    * install Longhorn requirements on the host
-        > Longhorn (= the system used to have persistence on Kubernetes) needs to have some specific packages installed directly on the hosts.
-        * run script on all the hosts of the cluster
-            > you can also manually install the Longhorn requirements by following the [official documentation](https://longhorn.io/docs/latest/deploy/install/#installation-requirements)
-            ```
-            ./terraform-kubeadm/scripts/requirements_longhorn.sh
-            ```
 * deploy `terraform-cluster`
+    * if you didn't used `terraform-kubeadm`
+        > *terraform-kubeadm* is automatically running these scripts
+        * configure required firewall rules on all the hosts
+            > Kubernetes, Calico, Longhorn etc.. rely on host firewall to work properly
+            * run script on all the hosts of the cluster
+                > you can also manually configure firewalls, all rules are explicits in the script \
+                > :warning: the control-plane and nodes hosts doesn't need the exact same firewall rules
+                ```
+                ./terraform-kubeadm/scripts/requirements_firewall.sh
+                ```
+        * install Longhorn requirements on the host
+            > Longhorn (= the system used to have persistence on Kubernetes) needs to have some specific packages installed directly on the hosts.
+            * run script on all the hosts of the cluster
+                > you can also manually install the Longhorn requirements by following the [official documentation](https://longhorn.io/docs/latest/deploy/install/#installation-requirements)
+                ```
+                ./terraform-kubeadm/scripts/requirements_longhorn.sh
+                ```
     * fill `terraform-cluster/terraform.tfvars` variables according to your needs
     * run pre-configured script
         > :pencil2: comment/uncomment the `terraform apply` line at the end to get a plan without deploy anything

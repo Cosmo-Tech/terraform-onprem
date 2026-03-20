@@ -106,7 +106,8 @@ install_calico() {
     waited=$((waited+1))
   done
 
-  kubectl --kubeconfig $kubeconfig_file set env daemonset/calico-node -n $calico_namespace IP_AUTODETECTION_METHOD=can-reach=8.8.8.8
+  # Force Calico to bind to an interface that has access to the network (unless it might use an interface that cannot reach others kubeadm nodes)
+  kubectl --kubeconfig $kubeconfig_file patch installation default --type merge -p '{"spec": {"calicoNetwork": {"nodeAddressAutodetectionV4": {"firstFound": null, "canReach": "8.8.8.8"}}}}'
 }
 
 
@@ -134,15 +135,17 @@ configure_firewall() {
     sudo nft add rule inet filter INPUT jump "$nftables_chain"
   fi
 
-  # - allow Kubernetes API
-  # - allow Kubelet (Logs & Stats)
-  # - allow BGP (Calico between nodes)
-  # - allow IPIP
+  # - allow Kubernetes API 6443
+  # - allow Kubelet API 10250
+  # - allow BGP 179 (Calico)
+  # - allow Typha 5473 (Calico)
+  # - allow IPIP (Calico)
   # - allow Calico virtual interfaces
   sudo nft add rule inet filter "$nftables_chain" iifname "lo" counter accept
   sudo nft add rule inet filter "$nftables_chain" tcp dport 6443 counter accept
   sudo nft add rule inet filter "$nftables_chain" tcp dport 10250 counter accept
   sudo nft add rule inet filter "$nftables_chain" tcp dport 179 counter accept
+  sudo nft add rule inet filter "$nftables_chain" tcp dport 5473 counter accept
   sudo nft add rule inet filter "$nftables_chain" ip protocol ipip counter accept
   sudo nft add rule inet filter "$nftables_chain" iifname "cali*" counter accept
   sudo nft add rule inet filter "$nftables_chain" iifname "tunl0" counter accept

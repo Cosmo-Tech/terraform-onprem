@@ -1,8 +1,3 @@
-locals {
-  node_name = "${var.cluster_name}-${each.value.type}"
-}
-
-
 resource "kubernetes_labels" "cosmotech_tiers" {
   for_each = { for key, value in var.hosts : key => value if value.type != "controlplane" }
 
@@ -10,7 +5,7 @@ resource "kubernetes_labels" "cosmotech_tiers" {
   kind        = "Node"
 
   metadata {
-    name = local.node_name
+    name = "${var.cluster_name}-${each.value.type}"
   }
 
   labels = {
@@ -23,7 +18,7 @@ resource "kubernetes_node_taint" "cosmotech_taints" {
   for_each = { for key, value in var.hosts : key => value if value.type != "controlplane" }
 
   metadata {
-    name = local.node_name
+    name = "${var.cluster_name}-${each.value.type}"
   }
 
   taint {
@@ -31,4 +26,15 @@ resource "kubernetes_node_taint" "cosmotech_taints" {
     value  = "cosmotech"
     effect = "NoSchedule"
   }
+}
+
+
+# The taints & labels can take time to be applied. Just a timer to be sure the nexts Terraform resources will works as expected
+resource "time_sleep" "wait_for_kubernetes_propagation" {
+  depends_on = [
+    kubernetes_labels.cosmotech_tiers,
+    kubernetes_node_taint.cosmotech_taints
+  ]
+
+  create_duration = "30s"
 }

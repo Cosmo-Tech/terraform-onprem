@@ -3,5 +3,5 @@ variable "hosts" {
 }
 
 variable "cluster_name" {
-  type = strings
+  type = string
 }

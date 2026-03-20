@@ -26,6 +26,9 @@ if [ -z "$COSMO_TF_MODULE_TO_RUN" ] || [ -z "$(echo $existing_module_list | grep
 fi
 
 
+echo "running module $COSMO_TF_MODULE_TO_RUN"
+
+
 # Dynamically copy variables to the running module (allow avoid the user needs to fill a different file for each module)
 rm -f "$COSMO_TF_MODULE_TO_RUN/terraform.tfvars"
 cp -f 'terraform.tfvars' "$COSMO_TF_MODULE_TO_RUN/"
@@ -94,7 +97,7 @@ fi
 terraform -chdir="$COSMO_TF_MODULE_TO_RUN" init -upgrade -reconfigure -backend-config="address=$state_url" -backend-config="lock_address=$state_url/lock" -backend-config="unlock_address=$state_url/lock"
 terraform -chdir="$COSMO_TF_MODULE_TO_RUN" plan -lock=false -out .terraform.plan
 
-if [ "$(echo $COSMO_TF_APPLY)" = 'true' ]; then
+if [ "$(echo $COSMO_TF_APPLY_ONPREM)" = 'true' ]; then
     terraform -chdir="$COSMO_TF_MODULE_TO_RUN" apply -lock=false .terraform.plan
 else
     echo ''

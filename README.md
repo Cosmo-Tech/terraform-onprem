@@ -38,7 +38,7 @@
 * *(optional)* deploy `terraform-kubeadm`
     > This module allows to quickly install [Kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) on top of existing Linux hosts (sudo SSH access is required) \
     > You can skip this step if you already have [a working Kubeadm cluster](https://kubernetes.io/docs/reference/setup-tools/kubeadm/)
-    * fill `terraform-kubeadm/terraform.tfvars` variables according to your needs
+    * fill `terraform.tfvars` variables according to your needs
     * *(optional)* it's recommended to have a working SSH agent
         > This Terraform module is using remote-exec provisionners, which is based on SSH. \
         ```ssd-add -l```
@@ -71,7 +71,7 @@
                 ```
                 ./terraform-kubeadm/scripts/requirements_longhorn.sh
                 ```
-    * fill `terraform-cluster/terraform.tfvars` variables according to your needs
+    * fill `terraform.tfvars` variables according to your needs
     * run pre-configured script
         > :pencil2: comment/uncomment the `terraform apply` line at the end to get a plan without deploy anything
         * Linux

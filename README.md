@@ -49,8 +49,7 @@
             ./_run-terraform.sh
             ```
     * install cluster context locally
-        * once finished, the kubeconfig file of the new cluster might be ready in /tmp/kubeconfig_xxxxx.yaml
-        * you can add it to your existing kubeconfig file by running this script:
+        * once finished, the kubeconfig file of the new cluster might be ready in `/tmp/kubeconfig_xxxxx.yaml`, you can add it to your existing kubeconfig file by running this script:
             ```
             ./_merge-kubeconfig.sh </tmp/kubeconfig_xxxxx.yaml>
             ```

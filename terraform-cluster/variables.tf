@@ -33,3 +33,8 @@ variable "dns_challenge_provider" {
   description = "Name of the provider where the DNS challenge needs to be setuped. This must match with the module name in 'terraform-dns-challenge-requirements'"
   type        = string
 }
+
+variable "hosts" {
+  description = "List of host where to perform the installation"
+  type        = map(any)
+}

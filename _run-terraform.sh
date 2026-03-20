@@ -26,6 +26,11 @@ if [ -z "$COSMO_TF_MODULE_TO_RUN" ] || [ -z "$(echo $existing_module_list | grep
 fi
 
 
+# Dynamically copy variables to the running module (allow avoid the user needs to fill a different file for each module)
+rm -f "$COSMO_TF_MODULE_TO_RUN/terraform.tfvars"
+cp -f 'terraform.tfvars' "$COSMO_TF_MODULE_TO_RUN/"
+
+
 # Get value of a variable declared in a given file from this pattern: variable = value
 # Usage: get_var_value <file> <variable>
 get_var_value() {
@@ -94,10 +99,10 @@ if [ "$(echo $COSMO_TF_APPLY)" = 'true' ]; then
 else
     echo ''
     echo "Terraform plan can be applied with:"
-    echo "  export COSMO_TF_APPLY=true"
+    echo "  export COSMO_TF_APPLY_ONPREM=true"
     echo ''
     echo "you can remove it with:"
-    echo "  unset COSMO_TF_APPLY"
+    echo "  unset COSMO_TF_APPLY_ONPREM"
 fi
 
 

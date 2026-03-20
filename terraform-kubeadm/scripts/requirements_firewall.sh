@@ -121,6 +121,7 @@ fi
 
 # Save nftables ruleset
 sudo nft list ruleset > /etc/nftables.conf
+sudo systemctl enable nftables
 
 
 echo ''

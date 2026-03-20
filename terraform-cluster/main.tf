@@ -10,11 +10,22 @@ locals {
   ])[0]
 }
 
+
 data "kubernetes_nodes" "all_nodes" {}
+
+
+module "nodes_labels" {
+  source = "./modules/nodes_labels"
+
+  hosts = var.hosts
+  cluster_name = local.main_name
+}
 
 
 module "longhorn" {
   source = "./modules/longhorn"
+
+  depends_on = [ module.nodes_labels ]
 }
 
 
@@ -22,6 +33,8 @@ module "metallb" {
   source = "./modules/metallb"
 
   cluster_ip = local.cluster_ip
+
+  depends_on = [ module.nodes_labels ]
 }
 
 

@@ -9,7 +9,7 @@ locals {
   }
 
   ssh_agent        = true
-  dir_tmp   = "/tmp"
+  dir_tmp          = "/tmp"
   triggers_replace = [timestamp()]
 }
 
@@ -69,7 +69,7 @@ resource "terraform_data" "send_scripts" {
 
   provisioner "file" {
     source      = "${path.module}/scripts/"
-    destination = "${local.dir_tmp}"
+    destination = local.dir_tmp
   }
 
   depends_on = [data.template_file.kubeadm_init_config]

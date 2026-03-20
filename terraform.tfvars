@@ -1,5 +1,6 @@
 cluster_name  = "devops"
 cluster_stage = "dev"
+domain_zone   = "onpremise.platform.cosmotech.com"
 
 # Override the default naming convention
 #  - false => "kob-<cluster_stage>-<cluster_name>"
@@ -9,6 +10,9 @@ override_naming_convention = "false"
 # State host can be DNS record, IP address, and must start with http:// or https://
 # state_host = "http://192.168.x.x"
 state_host = "https://cosmotechstates.onpremise.platform.cosmotech.com"
+
+# DNS challenge provider where the cluster record is hosted
+dns_challenge_provider = "azure"
 
 # How to fill the 'hosts' map below
 # "Host" means the Linux server on which the Kubernetes node will be install (it can be VM, bare-metal etc...). The only requirements are: Debian-based host + root SSH access

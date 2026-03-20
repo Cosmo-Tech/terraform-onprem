@@ -39,8 +39,11 @@ install_longhorn_requirements() {
     fi
   done
 
-  sudo apt update
-  sudo apt install -y open-iscsi
+  apt update
+  apt install -y open-iscsi
+
+  systemctl enable iscsid
+  systemctl start iscsid
 }
 
 

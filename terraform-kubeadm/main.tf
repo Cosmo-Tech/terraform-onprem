@@ -76,8 +76,8 @@ resource "terraform_data" "send_scripts" {
 }
 
 
-# Install Longhorn requirements on all hosts (required packages)
-resource "terraform_data" "longhorn_requirements" {
+# Run requirements scripts on all hosts
+resource "terraform_data" "scripts_requirements" {
   for_each = var.hosts
 
   triggers_replace = local.triggers_replace
@@ -89,13 +89,24 @@ resource "terraform_data" "longhorn_requirements" {
     agent = local.ssh_agent
   }
 
-  # Install Kubeadm itself on all hosts (the binaries & required packages)
+  # Configure required firewall on all hosts
+  provisioner "remote-exec" {
+    inline = [
+      "${local.command_auth_sudo}",
+      "cd ${local.dir_tmp}",
+      "script='requirements_firewall.sh'",
+      "sudo chmod +x $script",
+      "sudo sh -c \"./$script\"",
+    ]
+  }
+
+  # Longhorn requirements on all hosts (required packages)
   # https://longhorn.io/docs/1.11.1/deploy/install/#installation-requirements
   provisioner "remote-exec" {
     inline = [
       "${local.command_auth_sudo}",
       "cd ${local.dir_tmp}",
-      "script='longhorn_requirements.sh'",
+      "script='requirements_longhorn.sh'",
       "sudo chmod +x $script",
       "sudo sh -c \"./$script\"",
     ]

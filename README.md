@@ -9,8 +9,8 @@
     * **docker-state-storage**
         * [docker](https://docs.docker.com/engine/install/) for the Caddy state storage
     * **terraform-kubeadm**
-        * at least 5 working Linux hosts (Debian/Ubuntu, because scripts are based on [APT](https://fr.wikipedia.org/wiki/Advanced_Packaging_Tool) & [nftables](https://wiki.nftables.org/))
-        * sudo SSH access to all the hosts
+        * at least 5 working Linux hosts (must be Debian/Ubuntu, because scripts are based on [APT](https://fr.wikipedia.org/wiki/Advanced_Packaging_Tool) & [nftables](https://wiki.nftables.org/))
+        * `sudo` SSH access to all the hosts
         * same sudo passwords on all the hosts (can be temporary)
         * minimal resources requirements are written at the end of this README file
     * **terraform-cluster**
@@ -55,13 +55,21 @@
             ./_merge-kubeconfig.sh </tmp/kubeconfig_xxxxx.yaml>
             ```
 * if you didn't used `terraform-kubeadm`
-    > *terraform-kubeadm* is automatically running this script
+    > *terraform-kubeadm* is automatically running these scripts
+    * configure required firewall rules on all the hosts
+        > Kubernetes, Calico, Longhorn etc.. rely on host firewall to work properly
+        * run script on all the hosts of the cluster
+            > you can also manually configure firewalls, all rules are explicits in the script \
+            > :warning: the control-plane and nodes hosts doesn't need the exact same firewall rules
+            ```
+            ./terraform-kubeadm/scripts/requirements_firewall.sh
+            ```
     * install Longhorn requirements on the host
         > Longhorn (= the system used to have persistence on Kubernetes) needs to have some specific packages installed directly on the hosts.
         * run script on all the hosts of the cluster
-            > you can also mmanually install the Longhorn requirements by following the [official documentation](https://longhorn.io/docs/latest/deploy/install/#installation-requirements)
+            > you can also manually install the Longhorn requirements by following the [official documentation](https://longhorn.io/docs/latest/deploy/install/#installation-requirements)
             ```
-            ./terraform-kubeadm/scripts/longhorn_requirements.sh
+            ./terraform-kubeadm/scripts/requirements_longhorn.sh
             ```
 * deploy `terraform-cluster`
     * fill `terraform-cluster/terraform.tfvars` variables according to your needs
@@ -92,7 +100,6 @@
     >     ```
     >     sudo ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key del /registry/longhorn.io/volumes/longhorn-system/VOLUME_NAME
     >     ```
-
 
 ## Developpers
 * Terraform modules
@@ -126,7 +133,6 @@
 |Kubeadm node services|16|16 Go|Host Cosmo Tech platform services required by the API|
 |Kubeadm node monitoring|4|8 Go|Host Cosmo Tech platform monitoring|
 |Kubeadm node basic|16|16 Go|Run Cosmo Tech platform simulations|
-
 
 <br>
 <br>

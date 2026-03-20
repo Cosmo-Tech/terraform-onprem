@@ -116,6 +116,32 @@ resource "terraform_data" "scripts_requirements" {
 }
 
 
+# # Reboot host
+# resource "terraform_data" "host_reboot_after_requirements" {
+#   for_each = var.hosts
+
+#   triggers_replace = local.triggers_replace
+
+#   connection {
+#     host = each.value.ip
+#     port = each.value.port
+#     user = each.value.user
+#     agent  = true
+#   }
+
+#   # Reboot host
+#   provisioner "remote-exec" {
+#     inline = [
+#       "${local.command_auth_sudo}",
+#       "echo 'rebooting host'",
+#       "sudo init 6",
+#     ]
+#   }
+
+#   depends_on = [ terraform_data.scripts_requirements ]
+# }
+
+
 # Install Kubeadm itself on all hosts (the binaries & required packages)
 resource "terraform_data" "kubeadm_install" {
   for_each = var.hosts
@@ -218,29 +244,3 @@ resource "terraform_data" "get_kubeconfig" {
 
   depends_on = [terraform_data.kubeadm_controlplane]
 }
-
-
-# # Reboot host
-# resource "terraform_data" "host_reboot_final" {
-#   for_each = var.hosts
-
-#   triggers_replace = local.triggers_replace
-
-#   connection {
-#     host = each.value.ip
-#     port = each.value.port
-#     user = each.value.user
-#     agent  = true
-#   }
-
-#   # Reboot host
-#   provisioner "remote-exec" {
-#     inline = [
-#       "${local.command_auth_sudo}",
-#       "echo 'rebooting host'",
-#       "sudo init 6",
-#     ]
-#   }
-
-#   depends_on = [ terraform_data.get_kubeconfig ]
-# }

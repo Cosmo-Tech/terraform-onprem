@@ -2,7 +2,7 @@
 
 
 # Stop script if missing dependency
-required_commands="kubeadm kubectl nft curl"
+required_commands="nft"
 for command in $required_commands; do
     if [ -z "$(command -v $command)" ]; then
         echo "error: required command not found: $command"
@@ -16,6 +16,13 @@ if [ "$(id -u)" != "0" ]; then
   echo "sudo is required"
   exit 1
 fi
+
+
+# Get the IP address used to access the LAN. Example: '192.168.0.11'
+lan_ip_address="$(hostname -I | cut -d ' ' -f 1)"
+
+# Get the IP address with its mask. Example: '192.168.0.11/24'
+lan_ip_cidr="$(ip a | grep -w $lan_ip_address | head -n 1 | sed "s|.*\($lan_ip_address/[0-9]*\).*|\1|")"
 
 
 # Detect if currently running on the machine that hosts the controlplane, or not (return 'true' or 'false')
@@ -76,6 +83,7 @@ add_rules_common() {
   # - allow port 10250 (Kubelet API)
   # - allow port 3260 (iSCSI, for Longhorn)
   # - allow ports 9500-9150 (multiple Longhorn services)
+  # - allow all Kubeadm nodes IP (Longhorn will need it)
   sudo nft add rule inet filter "$nftables_chain" iifname "lo" counter accept
   sudo nft add rule inet filter "$nftables_chain" iifname "cali*" counter accept
   sudo nft add rule inet filter "$nftables_chain" iifname "tunl0" counter accept
@@ -83,8 +91,9 @@ add_rules_common() {
   sudo nft add rule inet filter "$nftables_chain" tcp dport 179 counter accept
   sudo nft add rule inet filter "$nftables_chain" tcp dport 5473 counter accept
   sudo nft add rule inet filter "$nftables_chain" tcp dport 10250 counter accept
-  sudo nft add rule inet filter "$nftables_chain" tcp dport 3260 counter accept
-  sudo nft add rule inet filter "$nftables_chain" tcp dport 9500-9510 counter accept
+  # sudo nft add rule inet filter "$nftables_chain" tcp dport 3260 counter accept
+  # sudo nft add rule inet filter "$nftables_chain" tcp dport 9500-9510 counter accept
+  sudo nft add rule inet filter "$nftables_chain" ip saddr "$lan_ip_cidr" counter accept
 }
 
 

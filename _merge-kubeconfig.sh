@@ -21,6 +21,11 @@ sed -i "s|$cluster_name@$cluster_name|$cluster_name|" $new_kubeconfig
 # Backup the current kubeconfig
 cp ~/.kube/config ~/.kube/config.save.$(date +%Y%m%d%H%M%S)
 
+# Delete old context/cluster/user if it was already existing with same name
+kubectl config delete-user $cluster_name
+kubectl config delete-cluster $cluster_name
+kubectl config delete-context $cluster_name
+
 # Merge the 2 files
 # KUBECONFIG accept a list of files separated with ':'
 export KUBECONFIG=~/.kube/config:"$new_kubeconfig"

@@ -4,7 +4,7 @@
 
 
 # Stop script if missing dependency
-required_commands="kubeadm kubectl nft curl"
+required_commands="kubeadm kubectl curl"
 for command in $required_commands; do
     if [ -z "$(command -v $command)" ]; then
         echo "error: required command not found: $command"
@@ -114,6 +114,10 @@ install_calico() {
 install_controlplane
 install_helm
 install_calico
+
+
+# Execute again firewall script, because the controlplane was not the controlplane at the moment the script have runned the first time
+./requirements_firewall.sh
 
 
 echo ''

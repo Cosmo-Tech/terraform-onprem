@@ -6,7 +6,7 @@
 # Stop script if not sudo
 if [ "$(id -u)" != "0" ]; then
   echo "sudo is required"
-  exit
+  exit 1
 fi
 
 
@@ -31,7 +31,7 @@ fi
 # https://longhorn.io/docs/1.11.1/deploy/install/#installation-requirements
 # Usage: install_longhorn_requirements
 install_longhorn_requirements() {
-  required_commands="bash curl findmnt grep awk blkid lsblk"
+  required_commands="bash curl findmnt grep awk blkid lsblk apt systemctl"
   for command in $required_commands; do
     if [ -z "$(command -v $command)" ]; then
       echo "error: required command not found: $command"

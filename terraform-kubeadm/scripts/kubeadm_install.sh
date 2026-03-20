@@ -37,10 +37,10 @@ fi
 # Stop script if missing dependency
 required_commands="apt swapoff curl systemctl"
 for command in $required_commands; do
-    if [ -z "$(command -v $command)" ]; then
-        echo "error: required command not found: $command"
-        exit 1
-    fi
+  if [ -z "$(command -v $command)" ]; then
+    echo "error: required command not found: $command"
+    exit 1
+  fi
 done
 
 

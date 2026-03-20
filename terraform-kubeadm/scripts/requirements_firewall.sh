@@ -4,10 +4,10 @@
 # Stop script if missing dependency
 required_commands="nft"
 for command in $required_commands; do
-    if [ -z "$(command -v $command)" ]; then
-        echo "error: required command not found: $command"
-        exit 1
-    fi
+  if [ -z "$(command -v $command)" ]; then
+    echo "error: required command not found: $command"
+    # exit 1
+  fi
 done
 
 
@@ -44,6 +44,20 @@ am_i_the_controlplane() {
 }
 
 
+# Add the required nftables table inet filter with chain INPUT if not exists
+# Usage: add_nft_base
+add_nft_base() {
+  sudo nft add table inet filter
+
+  if ! sudo nft list chain inet filter INPUT >/dev/null 2>&1; then
+    sudo nft add chain inet filter INPUT { type filter hook input priority filter \; policy drop \; }
+    sudo nft add rule inet filter INPUT ct state established,related counter accept
+    sudo nft add rule inet filter INPUT ct state invalid drop
+    sudo nft add rule inet filter INPUT iifname "lo" counter accept
+  fi
+}
+
+
 # Add nftables custom chain
 # Usage: add_nft_chain <chain name>
 add_nft_chain() {
@@ -53,7 +67,7 @@ add_nft_chain() {
   sudo nft add table inet filter
 
   # Create a clean nftables chain dedicated for Kube:
-  # -> delete chain relation -> it allows to delete the dedicated kube chain -> it allows to recreate a clean chain
+  # -> delete chain relation -> it allows to delete the dedicated COSMO-KUBE chain -> it allows to recreate a clean chain
   local nftables_rule_jump_id="$(sudo nft -a list chain inet filter INPUT | grep -w "jump $nftables_chain" | awk '/handle [0-9]+/ {print $NF}')"
   if [ -n "$nftables_rule_jump_id" ]; then
     sudo nft delete rule inet filter INPUT handle $nftables_rule_jump_id
@@ -103,8 +117,14 @@ add_rules_if_controlplane() {
   local nftables_chain=$1
 
   # - allow port 6443 (Kubernetes API)
+  # - allow port 443 (HTTPS, for Cosmo Tech platform web access)
   sudo nft add rule inet filter "$nftables_chain" tcp dport 6443 counter accept
+  sudo nft add rule inet filter "$nftables_chain" tcp dport 443 counter accept
 }
+
+
+# Be sure nftables is ready to use
+add_nft_base
 
 
 # Add a chain for common rules

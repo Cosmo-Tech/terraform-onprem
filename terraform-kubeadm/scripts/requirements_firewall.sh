@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# Install kubeadm controlplane
-
 
 # Stop script if missing dependency
 required_commands="kubeadm kubectl nft curl"

@@ -8,13 +8,13 @@
 * situational
     * **docker-state-storage**
         * [docker](https://docs.docker.com/engine/install/) for the Caddy state storage
-    * **terraform-kubeadm**
+    * **terraform-hosts**
         * at least 5 working Linux hosts (must be Debian/Ubuntu, because scripts are based on [APT](https://fr.wikipedia.org/wiki/Advanced_Packaging_Tool) & [nftables](https://wiki.nftables.org/))
         * `sudo` SSH access to all the hosts
         * same sudo passwords on all the hosts (can be temporary)
         * minimal resources requirements are written at the end of this README file
     * **terraform-cluster**
-        * a working [Kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) cluster (can be installed from `terraform-kubeadm`, but is not mandatory)
+        * a working [Kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) cluster (can be installed from `terraform-hosts`, but is not mandatory)
         * admin access to the Kubeadm cluster
 
 ## How to
@@ -35,7 +35,7 @@
         docker compose -f docker-state-storage/docker-compose.yaml up -d
         ```
     > After have setuped the DNS challenge, you can remove `tls internal` from `docker-compose.yaml` to improve security
-* *(optional)* deploy `terraform-kubeadm`
+* *(optional)* deploy `terraform-hosts`
     > This module allows to quickly install [Kubeadm](https://kubernetes.io/docs/reference/setup-tools/kubeadm/) on top of existing Linux hosts (sudo SSH access is required) \
     > You can skip this step if you already have [a working Kubeadm cluster](https://kubernetes.io/docs/reference/setup-tools/kubeadm/)
     * fill `terraform.tfvars` variables according to your needs
@@ -54,22 +54,22 @@
             ./_merge-kubeconfig.sh </tmp/kubeconfig_xxxxx.yaml>
             ```
 * deploy `terraform-cluster`
-    * if you have not used `terraform-kubeadm`
-        > *terraform-kubeadm* is automatically running these scripts
+    * if you have not used `terraform-hosts`
+        > *terraform-hosts* is automatically running these scripts
         * configure required firewall rules on all the hosts
             > Kubernetes, Calico, Longhorn etc.. rely on host firewall to work properly
             * run script on all the hosts of the cluster
                 > you can also manually configure firewalls, all rules are explicits in the script \
                 > :warning: the control-plane and nodes hosts doesn't need the exact same firewall rules
                 ```
-                ./terraform-kubeadm/scripts/requirements_firewall.sh
+                ./terraform-hosts/scripts/requirements_firewall.sh
                 ```
         * install Longhorn requirements on the host
             > Longhorn (= the system used to have persistence on Kubernetes) needs to have some specific packages installed directly on the hosts.
             * run script on all the hosts of the cluster
                 > you can also manually install the Longhorn requirements by following the [official documentation](https://longhorn.io/docs/latest/deploy/install/#installation-requirements)
                 ```
-                ./terraform-kubeadm/scripts/requirements_longhorn.sh
+                ./terraform-hosts/scripts/requirements_longhorn.sh
                 ```
     * fill `terraform.tfvars` variables according to your needs
     * run pre-configured script
@@ -109,7 +109,7 @@
             * create the DNS provider requirements to run cert-manager with DNS-01 challenge (HTTP-01 challenges might not work in local networks)
             * store relevant informations in a Kubernetes secrets `dns-challenge`
         * *storage* = persistent storage for Kubernetes statefulsets (this module is not used directly here, it's always used in remote modules through its Github URL)
-    * **terraform-kubeadm**
+    * **terraform-hosts**
         * contains Shell scripts that are called from Terraform, and executed with remote-exec through SSH (requires sudo access)
         * install [Kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) (with Kubelet & Kubectl) on top of existing Linux hosts
         * install Helm on the controlplane host

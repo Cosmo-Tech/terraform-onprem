@@ -97,20 +97,19 @@ fi
 terraform -chdir="$COSMO_TF_MODULE_TO_RUN" init -upgrade -reconfigure -backend-config="address=$state_url" -backend-config="lock_address=$state_url/lock" -backend-config="unlock_address=$state_url/lock"
 terraform -chdir="$COSMO_TF_MODULE_TO_RUN" plan -lock=false -out .terraform.plan
 
-if [ "$(echo $COSMO_TF_APPLY_ONPREM)" = 'true' ]; then
+
+option_apply='--apply'
+if [ "$(echo $1)" = "$option_apply" ]; then
     terraform -chdir="$COSMO_TF_MODULE_TO_RUN" apply -lock=false .terraform.plan
 else
     echo ''
-    echo "Terraform plan can be applied with:"
-    echo "  export COSMO_TF_APPLY_ONPREM=true"
-    echo ''
-    echo "you can remove it with:"
-    echo "  unset COSMO_TF_APPLY_ONPREM"
+    echo "\e[97mTerraform plan can be applied with:"
+    echo "  $0 $option_apply"
 fi
 
 
-# Just a message to display after have runned terraform-kubeadm
-if [ "$COSMO_TF_MODULE_TO_RUN" = 'terraform-kubeadm' ] && [ "$(ls /tmp/ | grep kubeconfig_)" ]; then
+# Just a message to display after have runned terraform-hosts
+if [ "$COSMO_TF_MODULE_TO_RUN" = 'terraform-hosts' ] && [ "$(ls /tmp/ | grep kubeconfig_)" ]; then
     echo ''
     echo 'Kubeconfig file is available at /tmp/'
     echo 'you can merge it with your existing kubeconfig file with:'

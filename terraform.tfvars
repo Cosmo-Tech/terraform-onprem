@@ -1,4 +1,4 @@
-cluster_name  = "devops"
+cluster_name  = "devops2"
 cluster_stage = "dev"
 domain_zone   = "onpremise.platform.cosmotech.com"
 
@@ -44,19 +44,22 @@ hosts = {
     user = "admin"
   }
   host-05 = {
-    type = "basic"
+    type = "compute"
+    size = "basic"
     ip   = "192.168.0.15"
     port = "22"
     user = "admin"
   }
   #   host-06 = {
-  #     type = "highmemory"
+  #     type = "compute"
+  #     size = "highmemory"
   #     ip   = "192.168.0.16"
   #     port = "22"
   #     user = "admin"
   #   }
   #   host-07 = {
-  #     type = "highcpu"
+  #     type = "compute"
+  #     size = "highcpu"
   #     ip   = "192.168.0.17"
   #     port = "22"
   #     user = "admin"

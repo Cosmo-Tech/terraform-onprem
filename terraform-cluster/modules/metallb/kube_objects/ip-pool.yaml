@@ -5,7 +5,7 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-    - ${cluster_ip}/32
+    - ${cluster_ip}/30
   autoAssign: true
   avoidBuggyIPs: false
 ---

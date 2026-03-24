@@ -50,7 +50,9 @@ add_nft_base() {
   sudo nft add table inet filter
 
   if ! sudo nft list chain inet filter INPUT >/dev/null 2>&1; then
-    sudo nft add chain inet filter INPUT { type filter hook input priority filter \; policy drop \; }
+    # sudo nft add chain inet filter INPUT { type filter hook input priority filter \; policy drop \; }
+    sudo nft add chain inet filter INPUT { type filter hook input priority filter \; policy accept \; }
+    # sudo nft add chain inet filter INPUT { type filter hook input priority -10 \; policy drop \; }
     sudo nft add rule inet filter INPUT ct state established,related counter accept
     sudo nft add rule inet filter INPUT ct state invalid drop
     sudo nft add rule inet filter INPUT iifname "lo" counter accept

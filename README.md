@@ -18,6 +18,7 @@
         * admin access to the Kubeadm cluster
 
 ## How to
+> :warning: After each step below, ensure that deployments are complete, especially in Kubernetes with the "ready" state on all pods.
 * clone current repo
     ```
     git clone https://github.com/Cosmo-Tech/terraform-onprem.git --branch <tag>
@@ -53,6 +54,11 @@
             ```
             ./_merge-kubeconfig.sh </tmp/kubeconfig_xxxxx.yaml>
             ```
+    * ensure all the nodes have joined the cluster
+        > this allows to validate that your kubeconfig file is working + the cluster is ready for nexts steps
+        ```
+        kubectl get nodes
+        ```
 * deploy `terraform-cluster`
     * if you have not used `terraform-hosts`
         > *terraform-hosts* is automatically running these scripts

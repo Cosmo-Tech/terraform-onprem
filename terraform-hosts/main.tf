@@ -242,5 +242,9 @@ resource "terraform_data" "get_kubeconfig" {
 #     ]
 #   }
 
-#   depends_on = [terraform_data.get_kubeconfig]
+#   depends_on = [
+#     terraform_data.get_kubeconfig,
+#     terraform_data.kubeadm_controlplane,
+#     terraform_data.kubeadm_nodes,
+#   ]
 # }

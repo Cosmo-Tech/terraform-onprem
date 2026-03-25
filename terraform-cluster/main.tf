@@ -42,6 +42,7 @@ module "metallb" {
   source = "./modules/metallb"
 
   ip_address_for_web_services = var.ip_address_for_web_services
+  ip_address_for_superset     = var.ip_address_for_superset
 
   depends_on = [module.nodes_labels]
 }

@@ -41,10 +41,10 @@ variable "hosts" {
 
 variable "ip_address_for_web_services" {
   description = "IP address used to serve the HTTPS endpoints of the Cosmo Tech platform"
-  type = string
+  type        = string
 }
 
 variable "ip_address_for_superset" {
   description = "IP address used to serve the HTTPS endpoint of Superset in the Cosmo Tech platform"
-  type = string
+  type        = string
 }

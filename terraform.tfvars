@@ -14,7 +14,7 @@ state_host = "https://cosmotechstates.onpremise.platform.cosmotech.com"
 # DNS challenge provider where the cluster record is hosted
 dns_challenge_provider = "azure"
 
-# # This IP address must not be affected to anything (including any nodes of the cluster). It will be used to serve the HTTPS endpoints of the Cosmo Tech platform (and it must be mapped to the DNS records of the Cosmo Tech platform)
+# This IP address must not be affected to anything (including any nodes of the cluster). It will be used to serve the HTTPS endpoints of the Cosmo Tech platform (and it must be mapped to the DNS records of the Cosmo Tech platform)
 ip_address_for_web_services = "192.168.0.101"
 ip_address_for_superset = "192.168.0.102"
 

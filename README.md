@@ -136,10 +136,10 @@
 |-------------------------|-----|--------|---------|----------------------------------------
 | States storage          | 1   | 1 Go   | 10 Go   | Store Terraform & Babylon states files
 | Kubeadm control-plane   | [requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) | [requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) | 50 Go | Kubeadm main host
-| Kubeadm node db         | 16  | 16 Go  | 150 Go  | Host Cosmo Tech platform databases
-| Kubeadm node services   | 16  | 16 Go  | 50 Go   | Host Cosmo Tech platform services required by the API
+| Kubeadm node db         | 8   | 8 Go   | 200 Go  | Host Cosmo Tech platform databases
+| Kubeadm node services   | 12  | 16 Go  | 50 Go   | Host Cosmo Tech platform services required by the API
 | Kubeadm node monitoring | 4   | 8 Go   | 50 Go   | Host Cosmo Tech platform monitoring
-| Kubeadm node basic      | 16  | 16 Go  | 50 Go   | Run Cosmo Tech platform simulations
+| Kubeadm node basic      | 8   | 16 Go  | 50 Go   | Run Cosmo Tech platform simulations
 
 ## Network recommandations
 > Note: table below are examples and must be adapted to your situation

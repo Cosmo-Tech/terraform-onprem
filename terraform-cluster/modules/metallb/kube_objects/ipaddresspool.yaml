@@ -7,5 +7,5 @@ spec:
   addresses:
     - ${ip_address_for_web_services}/32
     - ${ip_address_for_superset}/32
-  autoAssign: false
+  autoAssign: true
   avoidBuggyIPs: false

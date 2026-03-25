@@ -7,16 +7,37 @@ terraform {
   }
 }
 
-# locals {
-#   # Get the IP from the existing nodes
-#   cluster_ip = flatten([
-#     for node in data.kubernetes_nodes.all_nodes.nodes : [
-#       for addr in node.status[0].addresses : addr.address if addr.type == "InternalIP"
-#     ]
-#   ])[0]
-# }
 
-# data "kubernetes_nodes" "all_nodes" {}
+# IPAddressPool object required for Metallb
+data "template_file" "ipaddresspool" {
+  template = file("${path.module}/kube_objects/ipaddresspool.yaml")
+  vars = {
+    ip_address_for_web_services = var.ip_address_for_web_services
+  }
+}
+
+resource "kubectl_manifest" "ipaddresspool" {
+  yaml_body = data.template_file.ipaddresspool.rendered
+
+  depends_on = [
+    data.template_file.ipaddresspool
+  ]
+}
+
+
+# L2Advertisement object required for Metallb
+data "template_file" "l2advertisement" {
+  template = file("${path.module}/kube_objects/l2advertisement.yaml")
+}
+
+resource "kubectl_manifest" "l2advertisement" {
+  yaml_body = data.template_file.l2advertisement.rendered
+
+  depends_on = [
+    data.template_file.l2advertisement
+  ]
+}
+
 
 resource "helm_release" "metallb" {
   name       = "metallb"
@@ -35,19 +56,9 @@ resource "helm_release" "metallb" {
   values = [
     file("${path.module}/values.yaml")
   ]
-}
-
-data "template_file" "ip_pool" {
-  template = file("${path.module}/kube_objects/ip-pool.yaml")
-  vars = {
-    cluster_ip = var.cluster_ip
-  }
-}
-
-resource "kubectl_manifest" "ip_pool" {
-  yaml_body = data.template_file.ip_pool.rendered
 
   depends_on = [
-    helm_release.metallb
+    kubectl_manifest.ipaddresspool,
+    kubectl_manifest.l2advertisement
   ]
 }

@@ -41,7 +41,7 @@ module "longhorn" {
 module "metallb" {
   source = "./modules/metallb"
 
-  cluster_ip = local.cluster_ip
+  ip_address_for_web_services = var.ip_address_for_web_services
 
   depends_on = [module.nodes_labels]
 }

@@ -135,11 +135,24 @@
 | Host                    | CPU | Memory | Storage | Usage
 |-------------------------|-----|--------|---------|----------------------------------------
 | States storage          | 1   | 1 Go   | 10 Go   | Store Terraform & Babylon states files
+| Kubeadm control-plane   | [requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) | [requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) | 50 Go | Kubeadm main host
 | Kubeadm node db         | 16  | 16 Go  | 150 Go  | Host Cosmo Tech platform databases
 | Kubeadm node services   | 16  | 16 Go  | 50 Go   | Host Cosmo Tech platform services required by the API
 | Kubeadm node monitoring | 4   | 8 Go   | 50 Go   | Host Cosmo Tech platform monitoring
 | Kubeadm node basic      | 16  | 16 Go  | 50 Go   | Run Cosmo Tech platform simulations
-| Kubeadm control-plane   | [requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) | [requirements](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/) | 50 Go | Kubeadm main host
+
+## Network recommandations
+> Note: table below are examples and must be adapted to your situation
+
+| IP addresses         | DNS records                                                                          | Usage
+|----------------------|--------------------------------------------------------------------------------------|------------------------------------------
+| Any accessible IP    | states.cosmotech.domain.example                                                      | States storage
+| 192.168.0.1          | <ul><li>cosmotech.domain.example</li><li>superset.cosmotech.domain.example</li></ul> | Standalone IP address for web services (= endpoint of the Cosmo Tech platform). It must be a free IP address, not bound to anything (including Kubeadm controle-plane & nodes).
+| 192.168.0.2          | none                                                                                 | Kubeadm control-plane
+| 192.168.0.3          | none                                                                                 | Kubeadm node db
+| 192.168.0.4          | none                                                                                 | Kubeadm node services
+| 192.168.0.5          | none                                                                                 | Kubeadm node monitoring
+| 192.168.0.6          | none                                                                                 | Kubeadm node basic
 
 <br>
 <br>

@@ -1,0 +1,10 @@
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: cosmo-pool
+  namespace: metallb-system
+spec:
+  addresses:
+    - ${ip_address_for_web_services}/32
+  autoAssign: false
+  avoidBuggyIPs: false

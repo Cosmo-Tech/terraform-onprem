@@ -101,19 +101,30 @@ terraform -chdir="$COSMO_TF_MODULE_TO_RUN" plan -lock=false -out .terraform.plan
 option_apply='--apply'
 if [ "$(echo $1)" = "$option_apply" ]; then
     terraform -chdir="$COSMO_TF_MODULE_TO_RUN" apply -lock=false .terraform.plan
+
+    if [ "$COSMO_TF_MODULE_TO_RUN" = 'terraform-hosts' ]; then
+        echo ''
+        echo 'Ensure everything has started, then you can run the \e[7;35m terraform-cluster \e[0m module'
+        echo '  \e[1;36mkubectl get pods --all-namespaces\e[0m'
+    fi
+
+    if [ "$COSMO_TF_MODULE_TO_RUN" = 'terraform-cluster' ]; then
+        echo ''
+        echo 'Ensure everything has started, then you can run the \e[7;35m terraform-shared \e[0m module'
+        echo '  \e[1;36mkubectl get pods --all-namespaces\e[0m'
+    fi
 else
     echo ''
-    echo "\e[97mTerraform plan can be applied with:"
-    echo "  $0 $option_apply"
+    echo "Terraform plan can be applied with:"
+    echo "  \e[1;36m$0 $option_apply\e[0m"
 fi
 
 
 # Just a message to display after have runned terraform-hosts
 if [ "$COSMO_TF_MODULE_TO_RUN" = 'terraform-hosts' ] && [ "$(ls /tmp/ | grep kubeconfig_)" ]; then
     echo ''
-    echo 'Kubeconfig file is available at /tmp/'
-    echo 'you can merge it with your existing kubeconfig file with:'
-    echo '  ./_merge-kubeconfig.sh /tmp/FILENAME'
+    echo 'Kubeconfig file is available at /tmp/, you can merge it with your existing kubeconfig file with:'
+    echo '  \e[1;36m./_merge-kubeconfig.sh /tmp/FILENAME\e[0m'
 fi
 
 

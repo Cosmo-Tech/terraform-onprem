@@ -153,8 +153,8 @@
 | 192.168.0.13         | none                                                                                 | Kubeadm node services
 | 192.168.0.14         | none                                                                                 | Kubeadm node monitoring
 | 192.168.0.15         | none                                                                                 | Kubeadm node basic
-| 192.168.0.16         | none                                                                                 | Kubeadm node highcpu (optional)
-| 192.168.0.17         | none                                                                                 | Kubeadm node highmemory (optional)
+| 192.168.0.16         | none                                                                                 | Kubeadm node highmemory (optional)
+| 192.168.0.17         | none                                                                                 | Kubeadm node highcpu (optional)
 
 <br>
 <br>

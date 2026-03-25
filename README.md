@@ -147,12 +147,14 @@
 | IP addresses         | DNS records                                                                          | Usage
 |----------------------|--------------------------------------------------------------------------------------|------------------------------------------
 | Any accessible IP    | states.cosmotech.domain.example                                                      | States storage
-| 192.168.0.1          | <ul><li>cosmotech.domain.example</li><li>superset.cosmotech.domain.example</li></ul> | Standalone IP address for web services (= endpoint of the Cosmo Tech platform). It must be a free IP address, not bound to anything (including Kubeadm controle-plane & nodes).
-| 192.168.0.2          | none                                                                                 | Kubeadm control-plane
-| 192.168.0.3          | none                                                                                 | Kubeadm node db
-| 192.168.0.4          | none                                                                                 | Kubeadm node services
-| 192.168.0.5          | none                                                                                 | Kubeadm node monitoring
-| 192.168.0.6          | none                                                                                 | Kubeadm node basic
+| 192.168.0.10         | <ul><li>cosmotech.domain.example</li><li>superset.cosmotech.domain.example</li></ul> | Standalone IP address for web services (= endpoint of the Cosmo Tech platform). It must be a free IP address, not bound to anything (including Kubeadm controle-plane & nodes).
+| 192.168.0.11         | none                                                                                 | Kubeadm control-plane
+| 192.168.0.12         | none                                                                                 | Kubeadm node db
+| 192.168.0.13         | none                                                                                 | Kubeadm node services
+| 192.168.0.14         | none                                                                                 | Kubeadm node monitoring
+| 192.168.0.15         | none                                                                                 | Kubeadm node basic
+| 192.168.0.16         | none                                                                                 | Kubeadm node highcpu (optional)
+| 192.168.0.17         | none                                                                                 | Kubeadm node highmemory (optional)
 
 <br>
 <br>

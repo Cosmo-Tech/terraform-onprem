@@ -15,7 +15,8 @@ state_host = "https://cosmotechstates.onpremise.platform.cosmotech.com"
 dns_challenge_provider = "azure"
 
 # # This IP address must not be affected to anything (including any nodes of the cluster). It will be used to serve the HTTPS endpoints of the Cosmo Tech platform (and it must be mapped to the DNS records of the Cosmo Tech platform)
-ip_address_for_web_services = "192.168.0.10"
+ip_address_for_web_services = "192.168.0.101"
+ip_address_for_superset = "192.168.0.102"
 
 # How to fill the 'hosts' map below
 # "Host" means the Linux server on which the Kubernetes node will be install (it can be VM, bare-metal etc...). The only requirements are: Debian-based host + root SSH access

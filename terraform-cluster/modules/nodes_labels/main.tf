@@ -11,14 +11,24 @@ locals {
 data "kubernetes_nodes" "all_nodes" {}
 
 
+# Simple trigger to ensure applying the resources
+resource "terraform_data" "trigger_refresh" {
+  input = timestamp()
+}
+
+
+# Set cosmotech.com/tier
+# The labels are automatically applied on nodes based on their real IP address vs the IP address you setted in terraform.tfvars
 resource "kubernetes_labels" "cosmotech_tiers" {
   for_each = {
     for key, value in var.hosts : key => value
     if value.type != "controlplane" && contains(keys(local.node_ip_to_name), value.ip)
   }
 
-  api_version = "v1"
-  kind        = "Node"
+  api_version   = "v1"
+  kind          = "Node"
+  force         = true
+  field_manager = "terraform-cosmotech"
 
   metadata {
     name = local.node_ip_to_name[each.value.ip]
@@ -26,16 +36,51 @@ resource "kubernetes_labels" "cosmotech_tiers" {
 
   labels = {
     "cosmotech.com/tier" = each.value.type
-    "vendor"             = "cosmotech"
+  }
+
+  lifecycle {
+    replace_triggered_by = [terraform_data.trigger_refresh]
   }
 }
 
 
+# Set cosmotech.com/size (on cosmotech.com/tier=compute)
+# The labels are automatically applied on nodes based on their real IP address vs the IP address you setted in terraform.tfvars
+resource "kubernetes_labels" "cosmotech_tier_compute_sizing" {
+  for_each = {
+    for key, value in var.hosts : key => value
+    if value.type == "compute" && contains(keys(local.node_ip_to_name), value.ip)
+  }
+
+  api_version   = "v1"
+  kind          = "Node"
+  force         = true
+  field_manager = "terraform-cosmotech"
+
+  metadata {
+    name = local.node_ip_to_name[each.value.ip]
+  }
+
+  labels = {
+    "cosmotech.com/size" = each.value.size
+  }
+
+  lifecycle {
+    replace_triggered_by = [terraform_data.trigger_refresh]
+  }
+}
+
+
+# Set vendor=cosmotech:NoSchedule taint
+# The labels are automatically applied on nodes based on their real IP address vs the IP address you setted in terraform.tfvars
 resource "kubernetes_node_taint" "cosmotech_taints" {
   for_each = {
     for key, value in var.hosts : key => value
     if value.type != "controlplane" && contains(keys(local.node_ip_to_name), value.ip)
   }
+
+  force         = true
+  field_manager = "terraform-cosmotech"
 
   metadata {
     name = local.node_ip_to_name[each.value.ip]
@@ -45,6 +90,10 @@ resource "kubernetes_node_taint" "cosmotech_taints" {
     key    = "vendor"
     value  = "cosmotech"
     effect = "NoSchedule"
+  }
+
+  lifecycle {
+    replace_triggered_by = [terraform_data.trigger_refresh]
   }
 }
 

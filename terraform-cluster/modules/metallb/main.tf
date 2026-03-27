@@ -8,37 +8,6 @@ terraform {
 }
 
 
-# IPAddressPool object required for Metallb
-data "template_file" "ipaddresspool" {
-  template = file("${path.module}/kube_objects/ipaddresspool.yaml")
-  vars = {
-    ip_address_for_web_services = var.ip_address_for_web_services
-    ip_address_for_superset     = var.ip_address_for_superset
-  }
-}
-
-resource "kubectl_manifest" "ipaddresspool" {
-  yaml_body = data.template_file.ipaddresspool.rendered
-
-  depends_on = [
-    data.template_file.ipaddresspool
-  ]
-}
-
-
-# L2Advertisement object required for Metallb
-data "template_file" "l2advertisement" {
-  template = file("${path.module}/kube_objects/l2advertisement.yaml")
-}
-
-resource "kubectl_manifest" "l2advertisement" {
-  yaml_body = data.template_file.l2advertisement.rendered
-
-  depends_on = [
-    data.template_file.l2advertisement
-  ]
-}
-
 
 resource "helm_release" "metallb" {
   name       = "metallb"
@@ -58,8 +27,44 @@ resource "helm_release" "metallb" {
     file("${path.module}/values.yaml")
   ]
 
+  # depends_on = [
+  #   kubectl_manifest.ipaddresspool,
+  #   kubectl_manifest.l2advertisement
+  # ]
+}
+
+
+# IPAddressPool object required for Metallb
+data "template_file" "ipaddresspool" {
+  template = file("${path.module}/kube_objects/ipaddresspool.yaml")
+  vars = {
+    ip_address_for_web_services = var.ip_address_for_web_services
+    ip_address_for_superset     = var.ip_address_for_superset
+  }
+
+  depends_on = [ helm_release.metallb]
+}
+
+resource "kubectl_manifest" "ipaddresspool" {
+  yaml_body = data.template_file.ipaddresspool.rendered
+
   depends_on = [
-    kubectl_manifest.ipaddresspool,
-    kubectl_manifest.l2advertisement
+    data.template_file.ipaddresspool
+  ]
+}
+
+
+# L2Advertisement object required for Metallb
+data "template_file" "l2advertisement" {
+  template = file("${path.module}/kube_objects/l2advertisement.yaml")
+
+  depends_on = [ helm_release.metallb]
+}
+
+resource "kubectl_manifest" "l2advertisement" {
+  yaml_body = data.template_file.l2advertisement.rendered
+
+  depends_on = [
+    data.template_file.l2advertisement
   ]
 }

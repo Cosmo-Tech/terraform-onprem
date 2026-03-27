@@ -1,4 +1,3 @@
-
 variable "cluster_name" {
   description = "Kubernetes cluster name"
   type        = string
@@ -14,11 +13,6 @@ variable "cluster_stage" {
   }
 }
 
-variable "domain_zone" {
-  description = "Domain zone containing the cluster domain"
-  type        = string
-}
-
 variable "override_naming_convention" {
   description = "Override the default naming convention (false => 'kob-<cluster_stage>-<cluster_name>'; true => cluster_name = the exact name that will be used)"
   type        = bool
@@ -29,22 +23,13 @@ variable "state_host" {
   type        = string
 }
 
-variable "dns_challenge_provider" {
-  description = "Name of the provider where the DNS challenge needs to be setuped. This must match with the module name in 'terraform-dns-challenge-requirements'"
-  type        = string
-}
-
 variable "hosts" {
   description = "List of host where to perform the installation"
   type        = map(any)
 }
 
-variable "ip_address_for_web_services" {
-  description = "IP address used to serve the HTTPS endpoints of the Cosmo Tech platform"
+variable "host_sudo_password" {
+  description = "Enter sudo password to execute scripts on hosts. All hosts must have the same password"
   type        = string
-}
-
-variable "ip_address_for_superset" {
-  description = "IP address used to serve the HTTPS endpoint of Superset in the Cosmo Tech platform"
-  type        = string
+  # sensitive = true
 }

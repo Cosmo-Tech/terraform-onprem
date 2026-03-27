@@ -34,7 +34,7 @@ resource "kubernetes_labels" "cosmotech_labels" {
   labels = {
     "cosmotech.com/tier" = each.value.type
     "cosmotech.com/size" = each.value.type == "compute" ? each.value.size : null
-    "vendor" = "cosmotech"
+    "vendor"             = "cosmotech"
   }
 
   lifecycle {

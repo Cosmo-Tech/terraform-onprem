@@ -42,7 +42,7 @@ data "template_file" "ipaddresspool" {
     ip_address_for_superset     = var.ip_address_for_superset
   }
 
-  depends_on = [ helm_release.metallb]
+  depends_on = [helm_release.metallb]
 }
 
 resource "kubectl_manifest" "ipaddresspool" {
@@ -58,7 +58,7 @@ resource "kubectl_manifest" "ipaddresspool" {
 data "template_file" "l2advertisement" {
   template = file("${path.module}/kube_objects/l2advertisement.yaml")
 
-  depends_on = [ helm_release.metallb]
+  depends_on = [helm_release.metallb]
 }
 
 resource "kubectl_manifest" "l2advertisement" {

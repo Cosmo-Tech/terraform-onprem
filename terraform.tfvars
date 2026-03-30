@@ -1,4 +1,4 @@
-cluster_name  = "devops2"
+cluster_name  = "devops"
 cluster_stage = "dev"
 domain_zone   = "onpremise.platform.cosmotech.com"
 

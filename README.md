@@ -122,6 +122,7 @@
         * install Calico on the Kubeadm cluster
         * configure firewall (with [nftables](https://wiki.nftables.org/)) -> it creates dedicated nftables chain "INPUT-COSMO-KUBE" & "INPUT-COSMO-KUBE-CONTROLPLANE"
         * install [Longhorn requirements](https://longhorn.io/docs/latest/deploy/install/#installation-requirements) on all Linux hosts
+        * configure DNS on all the hosts (required for CoreDNS) -> file /etc/resolv.conf usage is enforced  
 * Docker
     * **docker-state-storage**
         * Create a place to host the Terraform states files

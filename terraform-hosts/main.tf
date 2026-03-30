@@ -52,21 +52,6 @@ resource "terraform_data" "send_scripts" {
     inline = ["mkdir -p ${local.dir_tmp}"]
   }
 
-  # provisioner "file" {
-  #   source      = "${path.module}/scripts/kubeadm_create_controlplane.sh"
-  #   destination = "${local.dir_tmp}/kubeadm_create_controlplane.sh"
-  # }
-
-  # provisioner "file" {
-  #   source      = "${path.module}/scripts/kubeadm_install.sh"
-  #   destination = "${local.dir_tmp}/kubeadm_install.sh"
-  # }
-
-  # provisioner "file" {
-  #   source      = "${path.module}/scripts/longhorn_requirements.sh"
-  #   destination = "${local.dir_tmp}/longhorn_requirements.sh"
-  # }
-
   provisioner "file" {
     source      = "${path.module}/scripts/"
     destination = local.dir_tmp
@@ -133,6 +118,7 @@ resource "terraform_data" "kubeadm_install" {
   provisioner "remote-exec" {
     inline = [
       "${local.command_auth_sudo}",
+      "export TERRAFORM_domain_zone=${var.domain_zone}",
       "cd ${local.dir_tmp}",
       "script='kubeadm_install.sh'",
       "sudo chmod +x $script",

@@ -8,3 +8,7 @@ apiVersion: kubeadm.k8s.io/v1beta4
 kind: InitConfiguration
 bootstrapTokens:
 - token: "${CLUSTER_JOIN_TOKEN}"
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+resolvConf: "/etc/resolv.conf"

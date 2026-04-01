@@ -46,6 +46,7 @@ cluster_name="$(get_var_value $COSMO_TF_MODULE_TO_RUN/terraform.tfvars cluster_n
 cluster_stage="$(get_var_value $COSMO_TF_MODULE_TO_RUN/terraform.tfvars cluster_stage)"
 cluster_region="$(get_var_value $COSMO_TF_MODULE_TO_RUN/terraform.tfvars cluster_region)"
 state_host="$(get_var_value $COSMO_TF_MODULE_TO_RUN/terraform.tfvars state_host)"
+dns_challenge_provider="$(get_var_value $COSMO_TF_MODULE_TO_RUN/terraform.tfvars dns_challenge_provider)"
 
 override_naming_convention="$(get_var_value $COSMO_TF_MODULE_TO_RUN/terraform.tfvars override_naming_convention)"
 if [ "$(echo $override_naming_convention)" = 'true' ]; then
@@ -59,6 +60,29 @@ state_url="$state_host/$state_file_name"
 # Clear old data
 rm -rf $COSMO_TF_MODULE_TO_RUN/.terraform*
 rm -rf $COSMO_TF_MODULE_TO_RUN/terraform.tfstate*
+
+
+# Automatically detect all the $TEMPLATE variables from a given a file,
+# and replace them with the value that the same variable has in the current script.
+# Usage: prepare_target_file <source file> <target file>
+prepare_target_file() {
+  local source_file=$1
+  local target_file=$2
+
+  rm -f $target_file
+  cp -f $source_file $target_file
+
+  local needed_variables="$(cat $target_file | grep TEMPLATE_ | sed 's|.*TEMPLATE_\([a-zA-Z_]*\).*|\1|' | sort -u)"
+  for var in $needed_variables; do
+
+    # Declare the TEMPLATE_variable
+    eval value=\$$var
+
+    # Replace TEMPLATE with the actual value
+    sed -i "s|\$TEMPLATE_$var|$value|" $target_file
+  done
+}
+target_file_dns01='terraform-cluster/dns01.target.tf'
 
 
 echo ''
@@ -91,6 +115,25 @@ if [ "$(echo $state_storage_status)" != '2' ]; then
 else
     echo "found $state_host"
 fi
+
+
+# The trick here is to write configuration in a dynamic file created at the begin
+# of the execution, containing the config that the concerned provider is waiting.
+# Then, Terraform will automatically detects it from its .tf extension.
+case "$(echo $dns_challenge_provider)" in
+  'azure')
+    prepare_target_file "terraform-cluster/targets/azuredns.dns01.target.tf" $target_file_dns01
+    ;;
+
+  'ovh')
+    prepare_target_file "terraform-cluster/targets/webhook_ovh.dns01.target.tf" $target_file_dns01
+    ;;
+
+  *)
+    echo "error: unknown or empty \e[dns_challenge_provider\e[0m from terraform.tfvars"
+    exit
+    ;;
+esac
 
 
 # Deploy

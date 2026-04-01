@@ -113,7 +113,7 @@
         * *metallb* = Load-balancer for on-premise Kubernetes clusters
         * *dns_challenges_requirements* =
             * create the DNS provider requirements to run cert-manager with DNS-01 challenge (HTTP-01 challenges might not work in local networks)
-            * store relevant informations in a Kubernetes secrets `dns-challenge`
+            * store relevant informations in a Kubernetes secrets `dns-challenge-terraform-onprem`
         * *storage* = persistent storage for Kubernetes statefulsets (this module is not used directly here, it's always used in remote modules through its Github URL)
     * **terraform-hosts**
         * contains Shell scripts that are called from Terraform, and executed with remote-exec through SSH (requires sudo access)

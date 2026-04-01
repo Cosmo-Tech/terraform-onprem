@@ -48,7 +48,7 @@ module "metallb" {
 }
 
 
-module "dns_challenges_requirements_azuredns" {
+module "dns_challenges_requirements_azure" {
   source = "./modules/dns_challenges_requirements/azuredns"
 
   dns_challenge_provider = var.dns_challenge_provider
@@ -57,7 +57,6 @@ module "dns_challenges_requirements_azuredns" {
   cluster_ip             = local.cluster_ip
   cluster_domain         = local.cluster_domain
 }
-
 
 
 module "dns_challenges_requirements_webhook_ovh" {

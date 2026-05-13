@@ -27,6 +27,13 @@ resource "kubernetes_manifest" "longhorn_volume" {
       fromBackup       = ""
     }
   }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      manifest,
+    ]
+  }
 }
 
 resource "kubernetes_persistent_volume" "pv" {
@@ -56,6 +63,14 @@ resource "kubernetes_persistent_volume" "pv" {
     }
   }
 
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      metadata[0],
+      spec[0],
+    ]
+  }
+
   depends_on = [kubernetes_manifest.longhorn_volume]
 }
 
@@ -76,6 +91,14 @@ resource "kubernetes_persistent_volume_claim" "pvc" {
         storage = kubernetes_persistent_volume.pv.spec[0].capacity.storage
       }
     }
+  }
+
+  lifecycle {
+    prevent_destroy = true
+    ignore_changes  = [
+      metadata[0],
+      spec[0],
+    ]
   }
 
   depends_on = [kubernetes_persistent_volume.pv]

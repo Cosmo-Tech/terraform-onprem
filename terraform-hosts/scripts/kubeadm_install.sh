@@ -6,7 +6,7 @@
 #  - differents env var are used in this script (all starting with "COSMO_KUBERNETES")
 
 
-COSMO_KUBERNETES_VERSION='1.35'
+COSMO_KUBERNETES_VERSION='1.37'
 echo "COSMO_KUBERNETES_VERSION=$COSMO_KUBERNETES_VERSION"
 
 
@@ -92,21 +92,25 @@ configure_dns() {
     return 0
   fi
 
-  # Ensure the search field exists to add the domain zone...
-  if [ "$(cat $dns_file | grep -w 'search')" ]; then
-    sed -i "s|search\(.*\)|search $domain_zone_to_add_in_search \1|" $dns_file
-  else
-    # ... and create it if not
-    echo "info: adding search field $dns_file"
-    echo "search $domain_zone_to_add_in_search" >> $dns_file
-  fi
+  # # Ensure the search field exists to add the domain zone...
+  # if [ "$(cat $dns_file | grep -w 'search')" ]; then
+  #   sed -i "s|search\(.*\)|search $domain_zone_to_add_in_search \1|" $dns_file
+  # else
+  #   # ... and create it if not
+  #   echo "info: adding search field $dns_file"
+  #   echo "search $domain_zone_to_add_in_search" >> $dns_file
+  # fi
 
-  # Ensure the domain zone has been well-added to the search field
-  if [ "$(cat $dns_file | grep -w $domain_zone_to_add_in_search)" ]; then
-    echo "info: successfully added domain zone '$domain_zone_to_add_in_search' in $dns_file"
-  else
-    echo "error: domain zone '$domain_zone_to_add_in_search' has not been added to $dns_file"
-  fi
+  # # Ensure the domain zone has been well-added to the search field
+  # if [ "$(cat $dns_file | grep -w $domain_zone_to_add_in_search)" ]; then
+  #   echo "info: successfully added domain zone '$domain_zone_to_add_in_search' in $dns_file"
+  # else
+  #   echo "error: domain zone '$domain_zone_to_add_in_search' has not been added to $dns_file"
+  # fi
+
+
+  sudo apt update
+  sudo apt install -y ipset ipvsadm
 }
 
 

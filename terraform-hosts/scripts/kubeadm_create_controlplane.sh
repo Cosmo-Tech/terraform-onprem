@@ -45,7 +45,7 @@ install_controlplane() {
 
     # Controlplane already exists, it means we can copy/paste the existing kubeconfig file to user home
     copy_kubeconfig_file_to_user_home
-    exit 0
+    return 0
   fi
 
   # Init controlplane
@@ -55,7 +55,7 @@ install_controlplane() {
     sudo kubeadm init --config "$kubeadm_config"
   else
     echo "error: missing kubeadm init config file $kubeadm_config"
-    exit 0
+    return 0
   fi
 
   # If the script is running until here, it's time to add the kubeconfig file to user home
@@ -77,10 +77,10 @@ install_helm() {
 # Install Calico
 # Usage: install_calico
 install_calico() {
-  if [ "$(helm --kubeconfig $kubeconfig_file -n tigera-operator list | grep -w calico)" ]; then
-    echo 'info: calico already installed, skipping'
-    exit 0
-  fi
+  # if [ "$(helm --kubeconfig $kubeconfig_file -n tigera-operator list | grep -w calico)" ]; then
+  #   echo 'info: calico already installed, skipping'
+  #   return 0
+  # fi
 
   helm --kubeconfig $kubeconfig_file repo add projectcalico https://docs.tigera.io/calico/charts
   helm --kubeconfig $kubeconfig_file repo update
@@ -88,7 +88,8 @@ install_calico() {
     --namespace tigera-operator \
     --create-namespace \
     --set installation.calicoNetwork.ipPools[0].cidr=192.168.0.0/16 \
-    --set installation.calicoNetwork.ipPools[0].encapsulation=IPIP
+    --set installation.calicoNetwork.ipPools[0].encapsulation=IPIP \
+    --set installation.calicoNetwork.mtu=1440
 
   # Wait for calico to have created its namespace
   local timeout=120

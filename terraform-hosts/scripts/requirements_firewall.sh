@@ -91,24 +91,28 @@ add_nft_chain() {
 add_rules_common() {
   local nftables_chain=$1
 
-  # - allow localhost
-  # - allow Calico interfaces
-  # - allow IPIP protocol (for Calico)
-  # - allow port 179 (BGP, for Calico)
-  # - allow port 5473 (Typha, for Calico)
-  # - allow port 10250 (Kubelet API)
-  # - allow port 3260 (iSCSI, for Longhorn)
-  # - allow ports 9500-9150 (multiple Longhorn services)
-  # - allow all Kubeadm nodes IP (Longhorn will need it)
-  sudo nft add rule inet filter "$nftables_chain" iifname "lo" counter accept
-  sudo nft add rule inet filter "$nftables_chain" iifname "cali*" counter accept
-  sudo nft add rule inet filter "$nftables_chain" iifname "tunl0" counter accept
-  sudo nft add rule inet filter "$nftables_chain" ip protocol ipip counter accept
-  sudo nft add rule inet filter "$nftables_chain" tcp dport 179 counter accept
-  sudo nft add rule inet filter "$nftables_chain" tcp dport 5473 counter accept
-  sudo nft add rule inet filter "$nftables_chain" tcp dport 10250 counter accept
-  # sudo nft add rule inet filter "$nftables_chain" tcp dport 3260 counter accept
-  # sudo nft add rule inet filter "$nftables_chain" tcp dport 9500-9510 counter accept
+  # # - allow localhost
+  # # - allow Calico interfaces
+  # # - allow IPIP protocol (for Calico)
+  # # - allow port 179 (BGP, for Calico)
+  # # - allow port 5473 (Typha, for Calico)
+  # # - allow port 10250 (Kubelet API)
+  # # - allow port 3260 (iSCSI, for Longhorn)
+  # # - allow ports 9500-9150 (multiple Longhorn services)
+  # # - allow all Kubeadm nodes IP (Longhorn will need it)
+  # sudo nft add rule inet filter "$nftables_chain" iifname "lo" counter accept
+  # sudo nft add rule inet filter "$nftables_chain" iifname "cali*" counter accept
+  # sudo nft add rule inet filter "$nftables_chain" iifname "tunl0" counter accept
+  # sudo nft add rule inet filter "$nftables_chain" ip protocol ipip counter accept
+  # sudo nft add rule inet filter "$nftables_chain" tcp dport 179 counter accept
+  # sudo nft add rule inet filter "$nftables_chain" tcp dport 5473 counter accept
+  # sudo nft add rule inet filter "$nftables_chain" tcp dport 10250 counter accept
+  # # sudo nft add rule inet filter "$nftables_chain" tcp dport 3260 counter accept
+  # # sudo nft add rule inet filter "$nftables_chain" tcp dport 9500-9510 counter accept
+  # sudo nft add rule inet filter "$nftables_chain" ip saddr "$lan_ip_cidr" counter accept
+
+
+  # Allow all Kubeadm nodes IP (Longhorn will need it)
   sudo nft add rule inet filter "$nftables_chain" ip saddr "$lan_ip_cidr" counter accept
 }
 
@@ -138,6 +142,9 @@ add_rules_common 'INPUT-COSMO-KUBE'
 if [ "$(am_i_the_controlplane)" = 'true' ]; then
   add_nft_chain 'INPUT-COSMO-KUBE-CONTROLPLANE'
   add_rules_if_controlplane 'INPUT-COSMO-KUBE-CONTROLPLANE'
+
+  # Ensure it works with nftables
+  kubectl --kubeconfig $kubeconfig_file patch configmap kube-proxy -n kube-system --type merge -p '{"data": {"config.conf": "mode: \"nftables\""}}'
 fi
 
 

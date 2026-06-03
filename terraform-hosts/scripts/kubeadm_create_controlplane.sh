@@ -84,7 +84,7 @@ install_calico() {
 
   helm --kubeconfig $kubeconfig_file repo add projectcalico https://docs.tigera.io/calico/charts
   helm --kubeconfig $kubeconfig_file repo update
-  helm --kubeconfig $kubeconfig_file install calico projectcalico/tigera-operator \
+  helm --kubeconfig $kubeconfig_file upgrade --install calico projectcalico/tigera-operator \
     --namespace tigera-operator \
     --create-namespace \
     --set installation.calicoNetwork.ipPools[0].cidr=192.168.0.0/16 \

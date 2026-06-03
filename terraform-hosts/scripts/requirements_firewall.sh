@@ -142,9 +142,6 @@ add_rules_common 'INPUT-COSMO-KUBE'
 if [ "$(am_i_the_controlplane)" = 'true' ]; then
   add_nft_chain 'INPUT-COSMO-KUBE-CONTROLPLANE'
   add_rules_if_controlplane 'INPUT-COSMO-KUBE-CONTROLPLANE'
-
-  # Ensure it works with nftables
-  kubectl --kubeconfig $kubeconfig_file patch configmap kube-proxy -n kube-system --type merge -p '{"data": {"config.conf": "mode: \"nftables\""}}'
 fi
 
 

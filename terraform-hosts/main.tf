@@ -74,6 +74,17 @@ resource "terraform_data" "scripts_requirements" {
     agent = local.ssh_agent
   }
 
+  # Configure required DNS on all hosts
+  provisioner "remote-exec" {
+    inline = [
+      "${local.command_auth_sudo}",
+      "cd ${local.dir_tmp}",
+      "script='requirements_dns.sh ${var.domain_zone}'",
+      "sudo chmod +x $script",
+      "sudo sh -c \"./$script\"",
+    ]
+  }
+
   # Configure required firewall on all hosts
   provisioner "remote-exec" {
     inline = [
@@ -118,7 +129,6 @@ resource "terraform_data" "kubeadm_install" {
   provisioner "remote-exec" {
     inline = [
       "${local.command_auth_sudo}",
-      "export TERRAFORM_domain_zone=${var.domain_zone}",
       "cd ${local.dir_tmp}",
       "script='kubeadm_install.sh'",
       "sudo chmod +x $script",

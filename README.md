@@ -44,11 +44,18 @@
         > This Terraform module is using remote-exec provisionners, which is based on SSH. \
         ```ssd-add -l```
     * run pre-configured script
-        > :pencil2: comment/uncomment the `terraform apply` line at the end to get a plan without deploy anything
-        * Linux
-            ```
-            ./_run-terraform.sh
-            ```
+        * plan
+            > get an execution plan to preview the changes without applying
+            * Linux
+                ```
+                ./_run-terraform.sh
+                ```
+        * apply
+            > executes the operations proposed in the plan
+            * Linux
+                ```
+                ./_run-terraform.sh --apply
+                ```
     * install cluster context locally
         * once finished, the kubeconfig file of the new cluster might be ready in `/tmp/kubeconfig_xxxxx.yaml`, you can add it to your existing kubeconfig file by running this script:
             ```
@@ -79,11 +86,18 @@
                 ```
     * fill `terraform.tfvars` variables according to your needs
     * run pre-configured script
-        > :pencil2: comment/uncomment the `terraform apply` line at the end to get a plan without deploy anything
-        * Linux
-            ```
-            ./_run-terraform.sh
-            ```
+        * plan
+            > get an execution plan to preview the changes without applying
+            * Linux
+                ```
+                ./_run-terraform.sh
+                ```
+        * apply
+            > executes the operations proposed in the plan
+            * Linux
+                ```
+                ./_run-terraform.sh --apply
+                ```
 * situational:
     * Add DNS records to your DNS zone (3 records: 1x cluster, 1x specific Superset, 1x state storage)
         > If DNS records need to be registered in a local DNS, manual creation is required (because Terraform cannot handle it). \

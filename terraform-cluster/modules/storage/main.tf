@@ -30,7 +30,7 @@ resource "kubernetes_manifest" "longhorn_volume" {
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes  = [
+    ignore_changes = [
       manifest,
     ]
   }
@@ -65,7 +65,7 @@ resource "kubernetes_persistent_volume" "pv" {
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes  = [
+    ignore_changes = [
       metadata[0],
       spec[0],
     ]
@@ -76,8 +76,8 @@ resource "kubernetes_persistent_volume" "pv" {
 
 resource "kubernetes_persistent_volume_claim" "pvc" {
   metadata {
-    namespace = var.namespace
-    name      = "pvc-${var.resource}"
+    namespace   = var.namespace
+    name        = "pvc-${var.resource}"
     annotations = var.pvc_annotations
   }
 
@@ -96,7 +96,7 @@ resource "kubernetes_persistent_volume_claim" "pvc" {
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes  = [
+    ignore_changes = [
       metadata[0].name,
       metadata[0].namespace,
       spec[0],

@@ -78,6 +78,7 @@ resource "kubernetes_persistent_volume_claim" "pvc" {
   metadata {
     namespace = var.namespace
     name      = "pvc-${var.resource}"
+    annotations = var.pvc_annotations
   }
 
   spec {
@@ -96,7 +97,8 @@ resource "kubernetes_persistent_volume_claim" "pvc" {
   lifecycle {
     prevent_destroy = true
     ignore_changes  = [
-      metadata[0],
+      metadata[0].name,
+      metadata[0].namespace,
       spec[0],
     ]
   }

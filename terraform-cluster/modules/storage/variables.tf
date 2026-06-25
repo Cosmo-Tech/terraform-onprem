@@ -24,3 +24,9 @@ variable "region" {
 variable "cloud_provider" {
   type = string
 }
+
+variable "pvc_annotations" {
+  type        = map(string)
+  description = "Optional annotations to set on PVC"
+  default     = {}
+}

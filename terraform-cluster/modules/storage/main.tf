@@ -12,10 +12,10 @@ resource "kubernetes_manifest" "longhorn_volume" {
     apiVersion = "longhorn.io/v1beta2"
     kind       = "Volume"
     metadata = {
-      name      = "${local.volume_name}"
+      name      = local.volume_name
       namespace = "longhorn-system"
       annotations = {
-        "longhorn.io/resource-name" = "${var.resource}"
+        "longhorn.io/resource-name" = var.resource
       }
     }
     spec = {
@@ -30,7 +30,7 @@ resource "kubernetes_manifest" "longhorn_volume" {
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes  = [
+    ignore_changes = [
       manifest,
     ]
   }
@@ -65,7 +65,7 @@ resource "kubernetes_persistent_volume" "pv" {
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes  = [
+    ignore_changes = [
       metadata[0],
       spec[0],
     ]
@@ -95,7 +95,7 @@ resource "kubernetes_persistent_volume_claim" "pvc" {
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes  = [
+    ignore_changes = [
       metadata[0],
       spec[0],
     ]

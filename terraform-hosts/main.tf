@@ -77,7 +77,7 @@ resource "terraform_data" "scripts_requirements" {
   # Configure required firewall on all hosts
   provisioner "remote-exec" {
     inline = [
-      "${local.command_auth_sudo}",
+      local.command_auth_sudo,
       "cd ${local.dir_tmp}",
       "script='requirements_firewall.sh'",
       "sudo chmod +x $script",
@@ -89,7 +89,7 @@ resource "terraform_data" "scripts_requirements" {
   # https://longhorn.io/docs/1.11.1/deploy/install/#installation-requirements
   provisioner "remote-exec" {
     inline = [
-      "${local.command_auth_sudo}",
+      local.command_auth_sudo,
       "cd ${local.dir_tmp}",
       "script='requirements_longhorn.sh'",
       "sudo chmod +x $script",
@@ -117,7 +117,7 @@ resource "terraform_data" "kubeadm_install" {
   # Install Kubeadm itself on all hosts (the binaries & required packages)
   provisioner "remote-exec" {
     inline = [
-      "${local.command_auth_sudo}",
+      local.command_auth_sudo,
       "export TERRAFORM_domain_zone=${var.domain_zone}",
       "cd ${local.dir_tmp}",
       "script='kubeadm_install.sh'",
@@ -152,7 +152,7 @@ resource "terraform_data" "kubeadm_controlplane" {
   # Install controlplane on host with type "controlplane" from terraform.tfvars
   provisioner "remote-exec" {
     inline = [
-      "${local.command_auth_sudo}",
+      local.command_auth_sudo,
       "cd ${local.dir_tmp}",
       "script='kubeadm_create_controlplane.sh'",
       "sudo chmod +x $script",
@@ -179,7 +179,7 @@ resource "terraform_data" "kubeadm_nodes" {
 
   provisioner "remote-exec" {
     inline = [
-      "${local.command_auth_sudo}",
+      local.command_auth_sudo,
       "if [ -f /etc/kubernetes/kubelet.conf ]; then",
       "echo 'info: this node is already in cluster ${local.main_name}, skipping'",
       "exit 0",
